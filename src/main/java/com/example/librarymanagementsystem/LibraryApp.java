@@ -41,6 +41,7 @@ public class LibraryApp extends Application {
         returnBookButton.setOnAction(e -> returnBook());
         viewBooksButton.setOnAction(e -> viewBooks());
         viewMembersButton.setOnAction(e -> viewMembers());
+        viewActiveLoansButton.setOnActon(e -> viewActiveLoans());
         searchBooksButton.setOnAction(e -> searchBooks());
         saveExitButton.setOnAction(e -> {
             try {
@@ -331,6 +332,30 @@ public class LibraryApp extends Application {
         alert.setContentText(message);
         alert.showAndWait();
     }
+
+    private void viewActiveLoans() {
+        Stage activeLoansStage = new Stage();
+        activeLoansStage.setTitle("Active Loans");
+
+        VBox layout = new VBox(10);
+        layout.setStyle("-fx-padding: 10;");
+
+        ListView<String> listView = new ListView<>();
+        for (Book book : library.getBookList()) {
+            if (!book.isAvailable()) {
+                String details = book.getTitle() + " (ISBN: " + book.getISBN() + ") - Borrower ID: "
+                        + book.getBorrowerID() + ", Due Date: " + book.getDueDate()
+                        + (book.isOverdue() ? " (Overdue)" : "");
+                listView.getItems().add(details);
+            }
+        }
+
+        layout.getChildren().addAll(new Label("Active Loans:"), listView);
+        Scene scene = new Scene(layout, 400, 400);
+        activeLoansStage.setScene(scene);
+        activeLoansStage.show();
+    }
+
 
 
     public static void main(String[] args) {

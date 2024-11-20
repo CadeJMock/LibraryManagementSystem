@@ -7,12 +7,15 @@ public class Member implements Serializable {
     private String name;
     private String memberID;
     private ArrayList<String> borrowedBooks;
+    private ArrayList<String> borrowHistory;
+
     private static final int BORROW_LIMIT = 3; // Limit on books a member can borrow
 
     public Member(String name, String memberID) {
         this.name = name;
         this.memberID = memberID;
         this.borrowedBooks = new ArrayList<>();
+        this.borrowHistory = new ArrayList<>();
     }
 
     // Getters and Setters
@@ -28,6 +31,10 @@ public class Member implements Serializable {
         return borrowedBooks;
     }
 
+    public ArrayList<String> getBorrowHistory() {
+        return borrowHistory;
+    }
+
     public boolean canBorrow() {
         return borrowedBooks.size() < BORROW_LIMIT;
     }
@@ -35,11 +42,13 @@ public class Member implements Serializable {
     public void borrowBook(String ISBN) {
         if (canBorrow()) {
             borrowedBooks.add(ISBN);
+            borrowHistory.add("Borrowed: " + ISBN);
         }
     }
 
     public void returnBook(String ISBN) {
         borrowedBooks.remove(ISBN);
+        borrowHistory.add("Returned: " + ISBN);
     }
 
     @Override

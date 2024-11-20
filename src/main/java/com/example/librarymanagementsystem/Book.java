@@ -10,6 +10,7 @@ public class Book implements Serializable {
     private boolean isAvailable;
     private String borrowerID;
     private LocalDate borrowedDate;
+    private LocalDate dueDate;
 
 
     public Book(String title, String author, String ISBN) {
@@ -19,6 +20,7 @@ public class Book implements Serializable {
         this.isAvailable = true;
         this.borrowerID = null;
         this.borrowedDate = null;
+        this.dueDate = null;
     }
 
     // Getters and Setters
@@ -56,6 +58,22 @@ public class Book implements Serializable {
 
     public void setBorrowedDate(LocalDate borrowedDate) {
         this.borrowedDate = borrowedDate;
+        this.dueDate = borrowedDate.plusWeeks(1);
+    }
+
+    public void setDueDate(LocalDate dueDate) {
+        this.dueDate = dueDate;
+    }
+
+    public LocalDate getDueDate() {
+        return dueDate;
+    }
+
+    public boolean isOverdue() {
+        if (dueDate == null) {
+            return false;
+        }
+        return LocalDate.now().isAfter(dueDate);
     }
 
     @Override
@@ -67,6 +85,7 @@ public class Book implements Serializable {
                 ", Available=" + isAvailable +
                 ", BorrowerID='" + borrowerID + '\'' +
                 ", BorrowedDate=" + borrowedDate +
+                ", DueDate=" + dueDate +
                 '}';
     }
 }
