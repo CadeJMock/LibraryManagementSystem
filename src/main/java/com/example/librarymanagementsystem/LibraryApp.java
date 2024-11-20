@@ -1,8 +1,11 @@
 package com.example.librarymanagementsystem;
 
 import javafx.application.Application;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -22,22 +25,57 @@ public class LibraryApp extends Application {
             System.out.println("No existing data found. Starting fresh.");
         }
 
-        VBox layout = new VBox(10);
-        layout.setStyle("-fx-padding: 10;");
+        // Main layout
+        BorderPane mainLayout = new BorderPane();
+        mainLayout.setStyle("-fx-padding: 20;");
 
-        // Main menu
-        Label header = new Label("Library Management System");
+        // Section 1: Add buttons
+        VBox addButtons = new VBox(10);
+        addButtons.setStyle("-fx-padding: 10; -fx-border-color: #b0b0b0; -fx-border-width: 1; -fx-border-radius: 5;");
+        Label addSectionLabel = new Label("Add Features");
+        addSectionLabel.setStyle("-fx-font-size: 14; -fx-font-weight: bold;");
         Button addBookButton = new Button("Add Book");
+        addBookButton.setStyle("-fx-font-size: 12; -fx-background-color: #4CAF50; -fx-text-fill: white;");
         Button addMemberButton = new Button("Add Member");
-        Button borrowBookButton = new Button("Borrow Book");
-        Button returnBookButton = new Button("Return Book");
-        Button viewBooksButton = new Button("View Books");
-        Button viewMembersButton = new Button("View Members");
-        Button searchBooksButton = new Button("Search Books");
-        Button viewActiveLoansButton = new Button("View Active Loans");
-        Button saveExitButton = new Button("Save and Exit");
+        addMemberButton.setStyle("-fx-font-size: 12; -fx-background-color: #4CAF50; -fx-text-fill: white;");
+        addButtons.getChildren().addAll(addSectionLabel, addBookButton, addMemberButton);
 
-        // Event handlers for buttons
+        // Section 2: Borrow/Return buttons
+        VBox borrowReturnButtons = new VBox(10);
+        borrowReturnButtons.setStyle("-fx-padding: 10; -fx-border-color: #b0b0b0; -fx-border-width: 1; -fx-border-radius: 5;");
+        Label borrowReturnSectionLabel = new Label("Borrow/Return");
+        borrowReturnSectionLabel.setStyle("-fx-font-size: 14; -fx-font-weight: bold;");
+        Button borrowBookButton = new Button("Borrow Book");
+        borrowBookButton.setStyle("-fx-font-size: 12; -fx-background-color: #FF9800; -fx-text-fill: white;");
+        Button returnBookButton = new Button("Return Book");
+        returnBookButton.setStyle("-fx-font-size: 12; -fx-background-color: #FF9800; -fx-text-fill: white;");
+        borrowReturnButtons.getChildren().addAll(borrowReturnSectionLabel, borrowBookButton, returnBookButton);
+
+        // Section 3: View buttons
+        VBox viewButtons = new VBox(10);
+        viewButtons.setStyle("-fx-padding: 10; -fx-border-color: #b0b0b0; -fx-border-width: 1; -fx-border-radius: 5;");
+        Label viewSectionLabel = new Label("View Features");
+        viewSectionLabel.setStyle("-fx-font-size: 14; -fx-font-weight: bold;");
+        Button viewBooksButton = new Button("View Books");
+        viewBooksButton.setStyle("-fx-font-size: 12; -fx-background-color: #2196F3; -fx-text-fill: white;");
+        Button viewMembersButton = new Button("View Members");
+        viewMembersButton.setStyle("-fx-font-size: 12; -fx-background-color: #2196F3; -fx-text-fill: white;");
+        Button viewActiveLoansButton = new Button("View Active Loans");
+        viewActiveLoansButton.setStyle("-fx-font-size: 12; -fx-background-color: #2196F3; -fx-text-fill: white;");
+        viewButtons.getChildren().addAll(viewSectionLabel, viewBooksButton, viewMembersButton, viewActiveLoansButton);
+
+        // Save and Exit button
+        Button saveExitButton = new Button("Save and Exit");
+        saveExitButton.setStyle("-fx-font-size: 12; -fx-background-color: #F44336; -fx-text-fill: white;");
+
+        // Layout arrangement
+        HBox topSection = new HBox(20, addButtons, borrowReturnButtons, viewButtons);
+        topSection.setStyle("-fx-alignment: center;");
+        mainLayout.setTop(topSection);
+        mainLayout.setBottom(saveExitButton);
+        BorderPane.setAlignment(saveExitButton, Pos.BOTTOM_RIGHT);
+
+        // Set button actions
         addBookButton.setOnAction(e -> addBook());
         addMemberButton.setOnAction(e -> addMember());
         borrowBookButton.setOnAction(e -> borrowBook());
@@ -45,7 +83,6 @@ public class LibraryApp extends Application {
         viewBooksButton.setOnAction(e -> viewBooks());
         viewMembersButton.setOnAction(e -> viewMembers());
         viewActiveLoansButton.setOnAction(e -> viewActiveLoans());
-        searchBooksButton.setOnAction(e -> searchBooks());
         saveExitButton.setOnAction(e -> {
             try {
                 library.saveData();
@@ -55,13 +92,14 @@ public class LibraryApp extends Application {
             }
         });
 
-        layout.getChildren().addAll(header, addBookButton, addMemberButton, borrowBookButton, returnBookButton,
-                viewBooksButton, viewMembersButton, searchBooksButton, viewActiveLoansButton, saveExitButton);
-
-        Scene scene = new Scene(layout, 400, 400);
+        // Set scene
+        Scene scene = new Scene(mainLayout, 600, 400);
         primaryStage.setScene(scene);
         primaryStage.show();
     }
+
+
+
 
     private void addBook() {
         Stage addBookStage = new Stage();
@@ -333,11 +371,12 @@ public class LibraryApp extends Application {
                 if (empty || book == null) {
                     setText(null);
                 } else {
-                    setText(book.getTitle() + " (ISBN: " + book.getISBN() + ")");
+                    setText(book.getTitle() + " by " + book.getAuthor() + " (ISBN: " + book.getISBN() + ")");
                 }
             }
         });
     }
+
 
     private void updateMemberList(ListView<Member> listView, List<Member> members) {
         listView.getItems().clear();
@@ -361,38 +400,46 @@ public class LibraryApp extends Application {
         Stage viewBooksStage = new Stage();
         viewBooksStage.setTitle("View Books");
 
+        // Main layout
         VBox layout = new VBox(10);
-        layout.setStyle("-fx-padding: 10;");
+        layout.setStyle("-fx-padding: 15;");
 
-        ListView<Book> listView = new ListView<>();
-        listView.getItems().addAll(library.getBookList()); // Add all books to the ListView
-        listView.setCellFactory(param -> new ListCell<>() {
-            @Override
-            protected void updateItem(Book book, boolean empty) {
-                super.updateItem(book, empty);
-                if (empty || book == null) {
-                    setText(null);
-                } else {
-                    setText(book.getTitle() + " by " + book.getAuthor() + " (ISBN: " + book.getISBN() + ")");
-                }
-            }
+        // Search bar
+        Label searchLabel = new Label("Search Books");
+        TextField searchField = new TextField();
+        searchField.setPromptText("Search by Title, Author, or ISBN");
+
+        // Book list
+        ListView<Book> bookListView = new ListView<>();
+        updateBookList(bookListView, library.getBookList());
+
+        // Dynamically filter book list based on search query
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            updateBookList(bookListView, library.getBookList().stream()
+                    .filter(book -> book.getTitle().toLowerCase().contains(newValue.toLowerCase()) ||
+                            book.getAuthor().toLowerCase().contains(newValue.toLowerCase()) ||
+                            book.getISBN().toLowerCase().contains(newValue.toLowerCase()))
+                    .toList());
         });
 
-        // Double-click event for viewing detailed book info
-        listView.setOnMouseClicked(event -> {
+        // Double-click event to show book details
+        bookListView.setOnMouseClicked(event -> {
             if (event.getClickCount() == 2) {
-                Book selectedBook = listView.getSelectionModel().getSelectedItem();
+                Book selectedBook = bookListView.getSelectionModel().getSelectedItem();
                 if (selectedBook != null) {
                     showBookDetails(selectedBook);
                 }
             }
         });
 
-        layout.getChildren().addAll(new Label("Books in Library:"), listView);
-        Scene scene = new Scene(layout, 400, 400);
+        // Add components to layout
+        layout.getChildren().addAll(searchLabel, searchField, bookListView);
+
+        Scene scene = new Scene(layout, 400, 600);
         viewBooksStage.setScene(scene);
         viewBooksStage.show();
     }
+
 
     // Mini-window to show book details
     private void showBookDetails(Book book) {
@@ -402,7 +449,7 @@ public class LibraryApp extends Application {
         VBox layout = new VBox(10);
         layout.setStyle("-fx-padding: 10;");
 
-        Label nameLabel = new Label("Name: " + book.getTitle());
+        Label nameLabel = new Label("Title: " + book.getTitle());
         Label authorLabel = new Label("Author: " + book.getAuthor());
         Label isbnLabel = new Label("ISBN: " + book.getISBN());
         Label availabilityLabel = new Label("Availability: " + (book.isAvailable() ? "Available" : "Not Available"));
@@ -415,6 +462,7 @@ public class LibraryApp extends Application {
         bookDetailsStage.setScene(scene);
         bookDetailsStage.show();
     }
+
 
 
     private void viewMembers() {
