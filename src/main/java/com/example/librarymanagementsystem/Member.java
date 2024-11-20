@@ -41,15 +41,19 @@ public class Member implements Serializable {
 
     public void borrowBook(String ISBN) {
         if (canBorrow()) {
-            borrowedBooks.add(ISBN);
-            borrowHistory.add("Borrowed: " + ISBN);
+            if (!borrowedBooks.contains(ISBN)) {
+                borrowedBooks.add(ISBN);
+                borrowHistory.add("Borrowed: " + ISBN);
+            }
         }
     }
 
     public void returnBook(String ISBN) {
-        borrowedBooks.remove(ISBN);
-        borrowHistory.add("Returned: " + ISBN);
+        borrowedBooks.remove(ISBN); // Remove ISBN from borrowedBooks
+        borrowHistory.add("Returned: " + ISBN); // Log the return in borrowHistory
     }
+
+
 
     @Override
     public String toString() {

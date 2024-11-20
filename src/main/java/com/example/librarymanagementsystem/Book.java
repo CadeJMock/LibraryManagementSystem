@@ -1,5 +1,7 @@
 package com.example.librarymanagementsystem;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.Serializable;
 import java.time.LocalDate;
 
@@ -57,9 +59,15 @@ public class Book implements Serializable {
     }
 
     public void setBorrowedDate(LocalDate borrowedDate) {
-        this.borrowedDate = borrowedDate;
-        this.dueDate = borrowedDate.plusWeeks(1);
+        if (borrowedDate == null) {
+            this.borrowedDate = null;
+            this.dueDate = null;
+        } else {
+            this.borrowedDate = borrowedDate;
+            this.dueDate = borrowedDate.plusWeeks(1); // Calculate due date only if borrowedDate is not null
+        }
     }
+
 
     public void setDueDate(LocalDate dueDate) {
         this.dueDate = dueDate;

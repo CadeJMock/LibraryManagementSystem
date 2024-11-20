@@ -48,15 +48,16 @@ public class Library {
                     if (member.getMemberID().equals(memberID) && member.canBorrow()) {
                         book.setAvailable(false);
                         book.setBorrowerID(memberID);
-                        book.setBorrowedDate(LocalDate.now()); // Set borrowed and due date
+                        book.setBorrowedDate(LocalDate.now()); // Set borrowedDate here
                         member.borrowBook(ISBN);
                         return true;
                     }
                 }
             }
         }
-        return false;
+        return false; // Borrowing failed
     }
+
 
     public boolean returnBook(String ISBN, String memberID) {
         for (Book book : bookList) {
@@ -64,8 +65,8 @@ public class Library {
                 book.setAvailable(true);
                 String borrowerID = book.getBorrowerID();
                 book.setBorrowerID(null);
-                book.setBorrowedDate(null);
-                book.setDueDate(null); // Clear due date
+                book.setBorrowedDate(null); // Clear borrowedDate safely
+                book.setDueDate(null); // Clear dueDate
                 for (Member member : memberList) {
                     if (member.getMemberID().equals(borrowerID)) {
                         member.returnBook(ISBN);
@@ -74,8 +75,10 @@ public class Library {
                 }
             }
         }
-        return false;
+        return false; // Return failed
     }
+
+
 
 
 

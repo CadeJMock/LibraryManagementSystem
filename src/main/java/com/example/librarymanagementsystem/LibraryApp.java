@@ -54,7 +54,7 @@ public class LibraryApp extends Application {
         });
 
         layout.getChildren().addAll(header, addBookButton, addMemberButton, borrowBookButton, returnBookButton,
-                viewBooksButton, viewMembersButton, searchBooksButton, saveExitButton);
+                viewBooksButton, viewMembersButton, searchBooksButton, viewActiveLoansButton, saveExitButton);
 
         Scene scene = new Scene(layout, 400, 400);
         primaryStage.setScene(scene);
@@ -341,21 +341,71 @@ public class LibraryApp extends Application {
         VBox layout = new VBox(10);
         layout.setStyle("-fx-padding: 10;");
 
-        ListView<String> listView = new ListView<>();
+        ListView<Book> listView = new ListView<>();
         for (Book book : library.getBookList()) {
             if (!book.isAvailable()) {
-                String details = book.getTitle() + " (ISBN: " + book.getISBN() + ") - Borrower ID: "
-                        + book.getBorrowerID() + ", Due Date: " + book.getDueDate()
-                        + (book.isOverdue() ? " (Overdue)" : "");
-                listView.getItems().add(details);
+                listView.getItems().add(book); // Add only borrowed books
             }
         }
+
+        // Display books in a readable format
+        listView.setCellFactory(param -> new ListCell<>() {
+            @Override
+            protected void updateItem(Book book, boolean empty) {
+                super.updateItem(book, empty);
+                if (empty || book == null) {
+                    setText(null);
+                } else {
+                    setText(book.getTitle() + " (ISBN: " + book.getISBN() + ")");
+                }
+            }
+        });
+
+        // Double-click event to show loan details
+        listView.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2) {
+                Book selectedBook = listView.getSelectionModel().getSelectedItem();
+                if (selectedBook != null) {
+                    showLoanDetails(selectedBook);
+                }
+            }
+        });
 
         layout.getChildren().addAll(new Label("Active Loans:"), listView);
         Scene scene = new Scene(layout, 400, 400);
         activeLoansStage.setScene(scene);
         activeLoansStage.show();
     }
+
+    private void showLoanDetails(Book book) {
+        Stage loanDetailsStage = new Stage();
+        loanDetailsStage.setTitle("Loan Details");
+
+        VBox layout = new VBox(10);
+        layout.setStyle("-fx-padding: 10;");
+
+        // Find the borrower based on borrower ID
+        Member borrower = null;
+        for (Member member : library.getMemberList()) {
+            if (member.getMemberID().equals(book.getBorrowerID())) {
+                borrower = member;
+                break;
+            }
+        }
+
+        Label titleLabel = new Label("Title: " + book.getTitle());
+        Label isbnLabel = new Label("ISBN: " + book.getISBN());
+        Label borrowerIdLabel = new Label("Borrower ID: " + book.getBorrowerID());
+        Label borrowerNameLabel = new Label("Borrower Name: " + (borrower != null ? borrower.getName() : "Unknown"));
+        Label dueDateLabel = new Label("Due Date: " + book.getDueDate() + (book.isOverdue() ? " (Overdue)" : ""));
+
+        layout.getChildren().addAll(titleLabel, isbnLabel, borrowerIdLabel, borrowerNameLabel, dueDateLabel);
+
+        Scene scene = new Scene(layout, 300, 200);
+        loanDetailsStage.setScene(scene);
+        loanDetailsStage.show();
+    }
+
 
 
 
