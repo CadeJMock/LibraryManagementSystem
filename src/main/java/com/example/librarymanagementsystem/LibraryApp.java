@@ -6,6 +6,8 @@ import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import java.util.List;
+
 public class LibraryApp extends Application {
     private Library library = new Library();
 
@@ -135,11 +137,65 @@ public class LibraryApp extends Application {
         VBox layout = new VBox(10);
         layout.setStyle("-fx-padding: 10;");
 
+        // Input fields
         TextField isbnField = new TextField();
         isbnField.setPromptText("Enter Book ISBN");
         TextField memberIdField = new TextField();
         memberIdField.setPromptText("Enter Member ID");
 
+        // Search bar for books
+        TextField bookSearchField = new TextField();
+        bookSearchField.setPromptText("Search by Title, Author, or ISBN");
+        ListView<Book> bookListView = new ListView<>();
+
+        // Populate list with available books
+        updateBookList(bookListView, library.getBookList().stream()
+                .filter(Book::isAvailable)
+                .toList());
+
+        // Update book list based on search
+        bookSearchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            updateBookList(bookListView, library.getBookList().stream()
+                    .filter(book -> book.isAvailable() &&
+                            (book.getTitle().toLowerCase().contains(newValue.toLowerCase()) ||
+                                    book.getAuthor().toLowerCase().contains(newValue.toLowerCase()) ||
+                                    book.getISBN().toLowerCase().contains(newValue.toLowerCase())))
+                    .toList());
+        });
+
+        // Populate ISBN field when book is selected
+        bookListView.setOnMouseClicked(event -> {
+            Book selectedBook = bookListView.getSelectionModel().getSelectedItem();
+            if (selectedBook != null) {
+                isbnField.setText(selectedBook.getISBN());
+            }
+        });
+
+        // Search bar for members
+        TextField memberSearchField = new TextField();
+        memberSearchField.setPromptText("Search by Name or Member ID");
+        ListView<Member> memberListView = new ListView<>();
+
+        // Populate list with all members
+        updateMemberList(memberListView, library.getMemberList());
+
+        // Update member list based on search
+        memberSearchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            updateMemberList(memberListView, library.getMemberList().stream()
+                    .filter(member -> member.getName().toLowerCase().contains(newValue.toLowerCase()) ||
+                            member.getMemberID().toLowerCase().contains(newValue.toLowerCase()))
+                    .toList());
+        });
+
+        // Populate Member ID field when member is selected
+        memberListView.setOnMouseClicked(event -> {
+            Member selectedMember = memberListView.getSelectionModel().getSelectedItem();
+            if (selectedMember != null) {
+                memberIdField.setText(selectedMember.getMemberID());
+            }
+        });
+
+        // Borrow button
         Button borrowButton = new Button("Borrow Book");
         borrowButton.setOnAction(e -> {
             String isbn = isbnField.getText();
@@ -151,21 +207,28 @@ public class LibraryApp extends Application {
                 return;
             }
 
-            // Check if the book exists and is available
+            // Attempt to borrow the book
             boolean success = library.borrowBook(isbn, memberId);
             if (success) {
                 showAlert("Success", "Book borrowed successfully!");
                 borrowBookStage.close();
             } else {
-                showAlert("Error", "Borrowing failed! Make sure the book exists, is available, and the member exists.");
+                showAlert("Error", "Borrowing failed! Make sure the book is available and the member exists.");
             }
         });
 
-        layout.getChildren().addAll(new Label("Borrow a Book"), isbnField, memberIdField, borrowButton);
-        Scene scene = new Scene(layout, 300, 200);
+        layout.getChildren().addAll(
+                new Label("Borrow a Book"),
+                bookSearchField, bookListView, isbnField,
+                memberSearchField, memberListView, memberIdField,
+                borrowButton
+        );
+
+        Scene scene = new Scene(layout, 400, 600);
         borrowBookStage.setScene(scene);
         borrowBookStage.show();
     }
+
 
 
     private void returnBook() {
@@ -175,9 +238,39 @@ public class LibraryApp extends Application {
         VBox layout = new VBox(10);
         layout.setStyle("-fx-padding: 10;");
 
+        // Input field for ISBN
         TextField isbnField = new TextField();
         isbnField.setPromptText("Enter Book ISBN");
 
+        // Search bar for books
+        TextField bookSearchField = new TextField();
+        bookSearchField.setPromptText("Search by Title, Author, or ISBN");
+        ListView<Book> bookListView = new ListView<>();
+
+        // Populate list with unavailable books
+        updateBookList(bookListView, library.getBookList().stream()
+                .filter(book -> !book.isAvailable())
+                .toList());
+
+        // Update book list based on search
+        bookSearchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            updateBookList(bookListView, library.getBookList().stream()
+                    .filter(book -> !book.isAvailable() &&
+                            (book.getTitle().toLowerCase().contains(newValue.toLowerCase()) ||
+                                    book.getAuthor().toLowerCase().contains(newValue.toLowerCase()) ||
+                                    book.getISBN().toLowerCase().contains(newValue.toLowerCase())))
+                    .toList());
+        });
+
+        // Populate ISBN field when book is selected
+        bookListView.setOnMouseClicked(event -> {
+            Book selectedBook = bookListView.getSelectionModel().getSelectedItem();
+            if (selectedBook != null) {
+                isbnField.setText(selectedBook.getISBN());
+            }
+        });
+
+        // Return button
         Button returnButton = new Button("Return Book");
         returnButton.setOnAction(e -> {
             String isbn = isbnField.getText();
@@ -188,7 +281,7 @@ public class LibraryApp extends Application {
                 return;
             }
 
-            // Check if the book exists and is checked out
+            // Attempt to return the book
             boolean success = library.returnBook(isbn, null);
             if (success) {
                 showAlert("Success", "Book returned successfully!");
@@ -198,11 +291,49 @@ public class LibraryApp extends Application {
             }
         });
 
-        layout.getChildren().addAll(new Label("Return a Book"), isbnField, returnButton);
-        Scene scene = new Scene(layout, 300, 150);
+        layout.getChildren().addAll(
+                new Label("Return a Book"),
+                bookSearchField, bookListView, isbnField,
+                returnButton
+        );
+
+        Scene scene = new Scene(layout, 400, 500);
         returnBookStage.setScene(scene);
         returnBookStage.show();
     }
+
+    private void updateBookList(ListView<Book> listView, List<Book> books) {
+        listView.getItems().clear();
+        listView.getItems().addAll(books);
+        listView.setCellFactory(param -> new ListCell<>() {
+            @Override
+            protected void updateItem(Book book, boolean empty) {
+                super.updateItem(book, empty);
+                if (empty || book == null) {
+                    setText(null);
+                } else {
+                    setText(book.getTitle() + " (ISBN: " + book.getISBN() + ")");
+                }
+            }
+        });
+    }
+
+    private void updateMemberList(ListView<Member> listView, List<Member> members) {
+        listView.getItems().clear();
+        listView.getItems().addAll(members);
+        listView.setCellFactory(param -> new ListCell<>() {
+            @Override
+            protected void updateItem(Member member, boolean empty) {
+                super.updateItem(member, empty);
+                if (empty || member == null) {
+                    setText(null);
+                } else {
+                    setText(member.getName() + " (ID: " + member.getMemberID() + ")");
+                }
+            }
+        });
+    }
+
 
 
     private void viewBooks() {
