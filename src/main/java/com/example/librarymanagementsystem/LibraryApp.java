@@ -71,13 +71,16 @@ public class LibraryApp extends Application {
         layout.setStyle("-fx-padding: 10;");
 
         TextField titleField = new TextField();
-        titleField.setPromptText("Title");
+        titleField.setPromptText("Enter Title");
+
         TextField authorField = new TextField();
-        authorField.setPromptText("Author");
+        authorField.setPromptText("Enter Author");
+
         TextField isbnField = new TextField();
-        isbnField.setPromptText("ISBN");
+        isbnField.setPromptText("Enter ISBN");
 
         Button addButton = new Button("Add Book");
+        addButton.setStyle("-fx-font-size: 14; -fx-background-color: #4CAF50; -fx-text-fill: white;"); // Green button
         addButton.setOnAction(e -> {
             String title = titleField.getText();
             String author = authorField.getText();
@@ -92,11 +95,17 @@ public class LibraryApp extends Application {
             }
         });
 
-        layout.getChildren().addAll(new Label("Enter Book Details"), titleField, authorField, isbnField, addButton);
+        layout.getChildren().addAll(
+                new Label("Add a New Book"),
+                titleField, authorField, isbnField,
+                addButton
+        );
+
         Scene scene = new Scene(layout, 300, 200);
         addBookStage.setScene(scene);
         addBookStage.show();
     }
+
 
     private void addMember() {
         Stage addMemberStage = new Stage();
@@ -106,11 +115,13 @@ public class LibraryApp extends Application {
         layout.setStyle("-fx-padding: 10;");
 
         TextField nameField = new TextField();
-        nameField.setPromptText("Name");
+        nameField.setPromptText("Enter Name");
+
         TextField memberIdField = new TextField();
-        memberIdField.setPromptText("Member ID");
+        memberIdField.setPromptText("Enter Member ID");
 
         Button addButton = new Button("Add Member");
+        addButton.setStyle("-fx-font-size: 14; -fx-background-color: #4CAF50; -fx-text-fill: white;"); // Green button
         addButton.setOnAction(e -> {
             String name = nameField.getText();
             String memberId = memberIdField.getText();
@@ -124,29 +135,33 @@ public class LibraryApp extends Application {
             }
         });
 
-        layout.getChildren().addAll(new Label("Enter Member Details"), nameField, memberIdField, addButton);
-        Scene scene = new Scene(layout, 300, 200);
+        layout.getChildren().addAll(
+                new Label("Add a New Member"),
+                nameField, memberIdField,
+                addButton
+        );
+
+        Scene scene = new Scene(layout, 300, 150);
         addMemberStage.setScene(scene);
         addMemberStage.show();
     }
+
 
     private void borrowBook() {
         Stage borrowBookStage = new Stage();
         borrowBookStage.setTitle("Borrow Book");
 
-        VBox layout = new VBox(10);
-        layout.setStyle("-fx-padding: 10;");
+        // Main layout
+        VBox mainLayout = new VBox(10);
+        mainLayout.setStyle("-fx-padding: 15;");
 
-        // Input fields
-        TextField isbnField = new TextField();
-        isbnField.setPromptText("Enter Book ISBN");
-        TextField memberIdField = new TextField();
-        memberIdField.setPromptText("Enter Member ID");
-
-        // Search bar for books
+        // Book search and selection
+        Label bookSearchLabel = new Label("Search for a Book");
         TextField bookSearchField = new TextField();
         bookSearchField.setPromptText("Search by Title, Author, or ISBN");
         ListView<Book> bookListView = new ListView<>();
+        TextField isbnField = new TextField(); // Declare isbnField
+        isbnField.setPromptText("Enter Book ISBN");
 
         // Populate list with available books
         updateBookList(bookListView, library.getBookList().stream()
@@ -171,10 +186,16 @@ public class LibraryApp extends Application {
             }
         });
 
-        // Search bar for members
+        Label isbnLabel = new Label("Book ISBN *");
+        isbnLabel.setStyle("-fx-text-fill: red;"); // Highlight required field
+
+        // Member search and selection
+        Label memberSearchLabel = new Label("Search for a Member");
         TextField memberSearchField = new TextField();
         memberSearchField.setPromptText("Search by Name or Member ID");
         ListView<Member> memberListView = new ListView<>();
+        TextField memberIdField = new TextField(); // Declare memberIdField
+        memberIdField.setPromptText("Enter Member ID");
 
         // Populate list with all members
         updateMemberList(memberListView, library.getMemberList());
@@ -195,19 +216,21 @@ public class LibraryApp extends Application {
             }
         });
 
+        Label memberIdLabel = new Label("Member ID *");
+        memberIdLabel.setStyle("-fx-text-fill: red;"); // Highlight required field
+
         // Borrow button
         Button borrowButton = new Button("Borrow Book");
+        borrowButton.setStyle("-fx-font-size: 14; -fx-background-color: #4CAF50; -fx-text-fill: white;");
         borrowButton.setOnAction(e -> {
             String isbn = isbnField.getText();
             String memberId = memberIdField.getText();
 
-            // Input validation
             if (isbn.isEmpty() || memberId.isEmpty()) {
                 showAlert("Error", "Both fields must be filled!");
                 return;
             }
 
-            // Attempt to borrow the book
             boolean success = library.borrowBook(isbn, memberId);
             if (success) {
                 showAlert("Success", "Book borrowed successfully!");
@@ -217,17 +240,18 @@ public class LibraryApp extends Application {
             }
         });
 
-        layout.getChildren().addAll(
-                new Label("Borrow a Book"),
-                bookSearchField, bookListView, isbnField,
-                memberSearchField, memberListView, memberIdField,
+        // Organize layout into sections
+        mainLayout.getChildren().addAll(
+                bookSearchLabel, bookSearchField, bookListView, isbnLabel, isbnField,
+                memberSearchLabel, memberSearchField, memberListView, memberIdLabel, memberIdField,
                 borrowButton
         );
 
-        Scene scene = new Scene(layout, 400, 600);
+        Scene scene = new Scene(mainLayout, 500, 700);
         borrowBookStage.setScene(scene);
         borrowBookStage.show();
     }
+
 
 
 
@@ -236,23 +260,20 @@ public class LibraryApp extends Application {
         returnBookStage.setTitle("Return Book");
 
         VBox layout = new VBox(10);
-        layout.setStyle("-fx-padding: 10;");
+        layout.setStyle("-fx-padding: 15;");
 
-        // Input field for ISBN
-        TextField isbnField = new TextField();
-        isbnField.setPromptText("Enter Book ISBN");
-
-        // Search bar for books
+        Label bookSearchLabel = new Label("Search for a Book");
         TextField bookSearchField = new TextField();
         bookSearchField.setPromptText("Search by Title, Author, or ISBN");
-        ListView<Book> bookListView = new ListView<>();
 
-        // Populate list with unavailable books
+        ListView<Book> bookListView = new ListView<>();
+        TextField isbnField = new TextField(); // Declare isbnField
+        isbnField.setPromptText("Enter Book ISBN");
+
         updateBookList(bookListView, library.getBookList().stream()
                 .filter(book -> !book.isAvailable())
                 .toList());
 
-        // Update book list based on search
         bookSearchField.textProperty().addListener((observable, oldValue, newValue) -> {
             updateBookList(bookListView, library.getBookList().stream()
                     .filter(book -> !book.isAvailable() &&
@@ -262,7 +283,6 @@ public class LibraryApp extends Application {
                     .toList());
         });
 
-        // Populate ISBN field when book is selected
         bookListView.setOnMouseClicked(event -> {
             Book selectedBook = bookListView.getSelectionModel().getSelectedItem();
             if (selectedBook != null) {
@@ -270,18 +290,19 @@ public class LibraryApp extends Application {
             }
         });
 
-        // Return button
+        Label isbnLabel = new Label("Book ISBN *");
+        isbnLabel.setStyle("-fx-text-fill: red;"); // Highlight required field
+
         Button returnButton = new Button("Return Book");
+        returnButton.setStyle("-fx-font-size: 14; -fx-background-color: #4CAF50; -fx-text-fill: white;"); // Green button
         returnButton.setOnAction(e -> {
             String isbn = isbnField.getText();
 
-            // Input validation
             if (isbn.isEmpty()) {
                 showAlert("Error", "ISBN field must be filled!");
                 return;
             }
 
-            // Attempt to return the book
             boolean success = library.returnBook(isbn, null);
             if (success) {
                 showAlert("Success", "Book returned successfully!");
@@ -292,8 +313,7 @@ public class LibraryApp extends Application {
         });
 
         layout.getChildren().addAll(
-                new Label("Return a Book"),
-                bookSearchField, bookListView, isbnField,
+                bookSearchLabel, bookSearchField, bookListView, isbnLabel, isbnField,
                 returnButton
         );
 
@@ -301,6 +321,7 @@ public class LibraryApp extends Application {
         returnBookStage.setScene(scene);
         returnBookStage.show();
     }
+
 
     private void updateBookList(ListView<Book> listView, List<Book> books) {
         listView.getItems().clear();
