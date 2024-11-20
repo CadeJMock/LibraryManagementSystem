@@ -32,6 +32,7 @@ public class LibraryApp extends Application {
         Button viewBooksButton = new Button("View Books");
         Button viewMembersButton = new Button("View Members");
         Button searchBooksButton = new Button("Search Books");
+        Button viewActiveLoansButton = new Button("View Active Loans");
         Button saveExitButton = new Button("Save and Exit");
 
         // Event handlers for buttons
@@ -41,7 +42,7 @@ public class LibraryApp extends Application {
         returnBookButton.setOnAction(e -> returnBook());
         viewBooksButton.setOnAction(e -> viewBooks());
         viewMembersButton.setOnAction(e -> viewMembers());
-        viewActiveLoansButton.setOnActon(e -> viewActiveLoans());
+        viewActiveLoansButton.setOnAction(e -> viewActiveLoans());
         searchBooksButton.setOnAction(e -> searchBooks());
         saveExitButton.setOnAction(e -> {
             try {
