@@ -117,6 +117,12 @@ public class LibraryApp extends Application {
         TextField isbnField = new TextField();
         isbnField.setPromptText("Enter ISBN");
 
+        isbnField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("\\d*")) {
+                isbnField.setText(oldValue);
+            }
+        });
+
         Button addButton = new Button("Add Book");
         addButton.setStyle("-fx-font-size: 14; -fx-background-color: #4CAF50; -fx-text-fill: white;"); // Green button
         addButton.setOnAction(e -> {
@@ -197,9 +203,17 @@ public class LibraryApp extends Application {
         Label bookSearchLabel = new Label("Search for a Book");
         TextField bookSearchField = new TextField();
         bookSearchField.setPromptText("Search by Title, Author, or ISBN");
+
         ListView<Book> bookListView = new ListView<>();
         TextField isbnField = new TextField(); // Declare isbnField
         isbnField.setPromptText("Enter Book ISBN");
+
+        // Restrict input to numbers only
+        isbnField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("\\d*")) {
+                isbnField.setText(oldValue);
+            }
+        });
 
         // Populate list with available books
         updateBookList(bookListView, library.getBookList().stream()
