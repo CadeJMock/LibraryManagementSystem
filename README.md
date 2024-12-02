@@ -5,6 +5,8 @@ Author: **Cade Mock**
 CWID: **50350556**  
 Email: **cmock2@leomail.tamuc.edu**
 
+The location of my actual .java files is:
+*LibraryManagementSystem/src/main/java/com.example.librarymanagementsystem/*
 ---
 
 ## Problem Statement
