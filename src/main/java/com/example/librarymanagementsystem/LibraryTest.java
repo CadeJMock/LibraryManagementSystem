@@ -1,3 +1,12 @@
+/*
+ * Cade Mock
+ * CWID: 50350556
+ * Date (Last Updated) : 12/1/2024
+ * Email: cmock2@leomail.tamuc.edu
+ *
+ * This class runs tests for all the features available in the other classes.
+ */
+
 package com.example.librarymanagementsystem;
 
 import java.io.File;

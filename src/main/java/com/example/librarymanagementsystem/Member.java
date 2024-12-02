@@ -1,3 +1,12 @@
+/*
+ * Cade Mock
+ * CWID: 50350556
+ * Date (Last Updated) : 12/1/2024
+ * Email: cmock2@leomail.tamuc.edu
+ *
+ * This class holds all the information related to a Member for our Library class to use.
+ */
+
 package com.example.librarymanagementsystem;
 
 import java.io.Serializable;

@@ -1,3 +1,13 @@
+/*
+ * Cade Mock
+ * CWID: 50350556
+ * Date (Last Updated) : 12/1/2024
+ * Email: cmock2@leomail.tamuc.edu
+ *
+ * This class holds the majority of our logic and launched the GUI that the user will use to interact with the library.
+ * You can do plenty of things like adding books, borrowing books, returning books, viewing active loans, deleting members, etc.
+ */
+
 package com.example.librarymanagementsystem;
 
 import javafx.application.Application;

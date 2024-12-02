@@ -1,9 +1,17 @@
+/*
+ * Cade Mock
+ * CWID: 50350556
+ * Date (Last Updated) : 12/1/2024
+ * Email: cmock2@leomail.tamuc.edu
+ *
+ * This class interacts with the Book and Member class to create a functional Library object with members and books.
+ */
+
 package com.example.librarymanagementsystem;
 
 import java.io.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Comparator;
 
 // Represents the library, managing books and members, and implements serializable for data persistence across the program *unsure if I need serializable for this
 public class Library implements Serializable {
