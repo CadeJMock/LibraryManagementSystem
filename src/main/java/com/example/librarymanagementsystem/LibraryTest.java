@@ -1,9 +1,16 @@
 package com.example.librarymanagementsystem;
 
 import java.io.File;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 public class LibraryTest {
+
+    // Track test results
+    private static int totalTests = 0;
+    private static int passedTests = 0;
+    private static List<String> failedTests = new ArrayList<>();
 
     public static void main(String[] args) {
         Library library = new Library();
@@ -31,19 +38,43 @@ public class LibraryTest {
         // Run tests
         System.out.println("\nRunning Tests...");
         runTests(library);
+
+        // Display test results
+        System.out.println("\n--- Test Results ---");
+        System.out.println("Total Tests: " + totalTests);
+        System.out.println("Passed Tests: " + passedTests);
+        System.out.println("Failed Tests: " + (totalTests - passedTests));
+        if (!failedTests.isEmpty()) {
+            System.out.println("\nFailed Test Names:");
+            for (String testName : failedTests) {
+                System.out.println("- " + testName);
+            }
+        }
+        System.out.println("---------------------");
     }
 
     private static void runTests(Library library) {
-        testAddBook(library);
-        testAddMember(library);
-        testBorrowBook(library);
-        testReturnBook(library);
-        testDuplicateISBN(library);
-        testDuplicateMemberID(library);
-        testDeleteBook(library);
-        testDeleteMember(library);
-        testActiveLoans(library);
-        System.out.println("\nAll tests completed.");
+        runTest("Add Book", () -> testAddBook(library));
+        runTest("Add Member", () -> testAddMember(library));
+        runTest("Borrow Book", () -> testBorrowBook(library));
+        runTest("Return Book", () -> testReturnBook(library));
+        runTest("Duplicate ISBN", () -> testDuplicateISBN(library));
+        runTest("Duplicate Member ID", () -> testDuplicateMemberID(library));
+        runTest("Delete Book", () -> testDeleteBook(library));
+        runTest("Delete Member", () -> testDeleteMember(library));
+        runTest("Active Loans", () -> testActiveLoans(library));
+    }
+
+    private static void runTest(String testName, Runnable test) {
+        totalTests++;
+        try {
+            test.run();
+            passedTests++;
+            System.out.println(testName + " Test Passed.");
+        } catch (AssertionError e) {
+            failedTests.add(testName);
+            System.out.println(testName + " Test Failed: " + e.getMessage());
+        }
     }
 
     private static void populateDefaultLibraryData(Library library) {
@@ -70,26 +101,34 @@ public class LibraryTest {
         library.addMember(new Member("Sophia Turner", "MEM008"));
         library.addMember(new Member("Liam Wilson", "MEM009"));
         library.addMember(new Member("Olivia Johnson", "MEM010"));
+
+        // Add overdue loans
+        library.borrowBook("111111111", "MEM001");
+        library.getBookList().stream()
+                .filter(book -> book.getISBN().equals("111111111"))
+                .findFirst()
+                .ifPresent(book -> book.setBorrowedDate(LocalDate.now().minusWeeks(2)));
+
+        library.borrowBook("222222222", "MEM002");
+        library.getBookList().stream()
+                .filter(book -> book.getISBN().equals("222222222"))
+                .findFirst()
+                .ifPresent(book -> book.setBorrowedDate(LocalDate.now().minusWeeks(3)));
     }
 
     private static void testAddBook(Library library) {
-        System.out.println("Testing Add Book...");
         Book book = new Book("Test Title", "Test Author", "123456789");
         library.addBook(book);
         assert library.getBookList().contains(book) : "Add Book Failed!";
-        System.out.println("Add Book Test Passed.");
     }
 
     private static void testAddMember(Library library) {
-        System.out.println("Testing Add Member...");
         Member member = new Member("Test Member", "MEM101");
         library.addMember(member);
         assert library.getMemberList().contains(member) : "Add Member Failed!";
-        System.out.println("Add Member Test Passed.");
     }
 
     private static void testBorrowBook(Library library) {
-        System.out.println("Testing Borrow Book...");
         String isbn = "111111111";
         String memberId = "MEM001";
         library.borrowBook(isbn, memberId);
@@ -98,11 +137,9 @@ public class LibraryTest {
                 .findFirst()
                 .orElse(null);
         assert borrowedBook != null && !borrowedBook.isAvailable() : "Borrow Book Failed!";
-        System.out.println("Borrow Book Test Passed.");
     }
 
     private static void testReturnBook(Library library) {
-        System.out.println("Testing Return Book...");
         String isbn = "111111111";
         String memberId = "MEM001";
         library.returnBook(isbn, memberId);
@@ -111,33 +148,27 @@ public class LibraryTest {
                 .findFirst()
                 .orElse(null);
         assert returnedBook != null && returnedBook.isAvailable() : "Return Book Failed!";
-        System.out.println("Return Book Test Passed.");
     }
 
     private static void testDuplicateISBN(Library library) {
-        System.out.println("Testing Duplicate ISBN...");
         Book duplicateBook = new Book("Duplicate Title", "Duplicate Author", "111111111");
         library.addBook(duplicateBook);
         long count = library.getBookList().stream()
                 .filter(book -> book.getISBN().equals("111111111"))
                 .count();
         assert count == 1 : "Duplicate ISBN Test Failed!";
-        System.out.println("Duplicate ISBN Test Passed.");
     }
 
     private static void testDuplicateMemberID(Library library) {
-        System.out.println("Testing Duplicate Member ID...");
         Member duplicateMember = new Member("Duplicate Member", "MEM001");
         library.addMember(duplicateMember);
         long count = library.getMemberList().stream()
                 .filter(member -> member.getMemberID().equals("MEM001"))
                 .count();
         assert count == 1 : "Duplicate Member ID Test Failed!";
-        System.out.println("Duplicate Member ID Test Passed.");
     }
 
     private static void testDeleteBook(Library library) {
-        System.out.println("Testing Delete Book...");
         String isbnToDelete = "111111111";
         Book bookToDelete = library.getBookList().stream()
                 .filter(book -> book.getISBN().equals(isbnToDelete))
@@ -148,11 +179,9 @@ public class LibraryTest {
         }
         assert library.getBookList().stream()
                 .noneMatch(book -> book.getISBN().equals(isbnToDelete)) : "Delete Book Failed!";
-        System.out.println("Delete Book Test Passed.");
     }
 
     private static void testDeleteMember(Library library) {
-        System.out.println("Testing Delete Member...");
         String memberIdToDelete = "MEM001";
         Member memberToDelete = library.getMemberList().stream()
                 .filter(member -> member.getMemberID().equals(memberIdToDelete))
@@ -165,11 +194,9 @@ public class LibraryTest {
         }
         assert library.getMemberList().stream()
                 .noneMatch(member -> member.getMemberID().equals(memberIdToDelete)) : "Delete Member Failed!";
-        System.out.println("Delete Member Test Passed.");
     }
 
     private static void testActiveLoans(Library library) {
-        System.out.println("Testing Active Loans...");
         Book book = new Book("Loan Test Title", "Loan Test Author", "987654321");
         Member member = new Member("Loan Test Member", "MEM102");
         library.addBook(book);
@@ -178,6 +205,5 @@ public class LibraryTest {
         assert library.getBookList().stream()
                 .filter(b -> !b.isAvailable())
                 .anyMatch(b -> b.getISBN().equals("987654321")) : "Active Loans Test Failed!";
-        System.out.println("Active Loans Test Passed.");
     }
 }

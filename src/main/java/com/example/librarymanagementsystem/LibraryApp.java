@@ -9,6 +9,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -817,6 +818,7 @@ public class LibraryApp extends Application {
 
 
 
+
     private void updateBookListForLoans(ListView<Book> listView, List<Book> books) {
         listView.getItems().clear();
         listView.getItems().addAll(books);
@@ -828,8 +830,17 @@ public class LibraryApp extends Application {
                     super.updateItem(book, empty);
                     if (empty || book == null) {
                         setText(null);
+                        setStyle("");
                     } else {
-                        setText(book.getTitle() + " (Borrower ID: " + book.getBorrowerID() + ")");
+                        String text = book.getTitle() + " (Borrower ID: " + book.getBorrowerID() + ")";
+                        setText(text);
+
+                        // Highlight overdue books in red
+                        if (book.getBorrowedDate() != null && book.getBorrowedDate().plusWeeks(1).isBefore(LocalDate.now())) {
+                            setStyle("-fx-text-fill: red;");
+                        } else {
+                            setStyle("");
+                        }
                     }
                 }
             };
@@ -884,6 +895,7 @@ public class LibraryApp extends Application {
             return cell;
         });
     }
+
 
 
 
