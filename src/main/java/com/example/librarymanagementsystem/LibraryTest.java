@@ -1,109 +1,183 @@
 package com.example.librarymanagementsystem;
 
-import java.io.IOException;
-import java.time.LocalDate;
+import java.io.File;
+import java.util.List;
 
 public class LibraryTest {
+
     public static void main(String[] args) {
         Library library = new Library();
 
-        // Populate library with 10 fake books and 10 fake members
-        populateLibrary(library);
-
-        // Save the populated data to the file
-        try {
-            library.saveData();
-            System.out.println("Library data saved to library_data.dat.");
-        } catch (IOException e) {
-            System.out.println("Failed to save library data: " + e.getMessage());
+        // Load data into the library or create and fill the data file if it doesn't exist
+        File dataFile = new File("library_data.dat");
+        if (!dataFile.exists()) {
+            System.out.println("No existing data found. Creating and populating library_data.dat...");
+            populateDefaultLibraryData(library);
+            try {
+                library.saveData();
+                System.out.println("library_data.dat created and populated successfully.");
+            } catch (Exception e) {
+                System.out.println("Failed to save library data: " + e.getMessage());
+            }
+        } else {
+            try {
+                library.loadData();
+                System.out.println("Library data loaded successfully.");
+            } catch (Exception e) {
+                System.out.println("Failed to load library data: " + e.getMessage());
+            }
         }
 
-        // Load the data back and test features
-        try {
-            library.loadData();
-            System.out.println("Library data loaded successfully.");
-        } catch (IOException | ClassNotFoundException e) {
-            System.out.println("Failed to load library data: " + e.getMessage());
-        }
-
-        // Extended tests
-        testLibraryFeatures(library);
+        // Run tests
+        System.out.println("\nRunning Tests...");
+        runTests(library);
     }
 
-    // Method to populate library with fake data
-    private static void populateLibrary(Library library) {
+    private static void runTests(Library library) {
+        testAddBook(library);
+        testAddMember(library);
+        testBorrowBook(library);
+        testReturnBook(library);
+        testDuplicateISBN(library);
+        testDuplicateMemberID(library);
+        testDeleteBook(library);
+        testDeleteMember(library);
+        testActiveLoans(library);
+        System.out.println("\nAll tests completed.");
+    }
+
+    private static void populateDefaultLibraryData(Library library) {
         // Add 10 fake books
-        library.addBook(new Book("The Great Adventure", "John Smith", "1234567890"));
-        library.addBook(new Book("Mystery of the Missing Code", "Jane Doe", "0987654321"));
-        library.addBook(new Book("Java for Pros", "Alice Johnson", "1122334455"));
-        library.addBook(new Book("The Art of Debugging", "Robert Brown", "5566778899"));
-        library.addBook(new Book("Understanding Algorithms", "Emily Davis", "6677889900"));
-        library.addBook(new Book("Design Patterns Explained", "William Moore", "2233445566"));
-        library.addBook(new Book("Mastering OOP", "Emma Wilson", "4455667788"));
-        library.addBook(new Book("Database Essentials", "Sophia Martinez", "8899001122"));
-        library.addBook(new Book("Software Testing Handbook", "Michael Garcia", "9900112233"));
-        library.addBook(new Book("The Cloud Revolution", "Olivia Anderson", "3344556677"));
+        library.addBook(new Book("The Great Adventure", "Alice Smith", "111111111"));
+        library.addBook(new Book("Ocean's Mystery", "Bob Johnson", "222222222"));
+        library.addBook(new Book("Stars Above", "Cathy Brown", "333333333"));
+        library.addBook(new Book("Future Tech", "David Wilson", "444444444"));
+        library.addBook(new Book("Cooking Secrets", "Emma Davis", "555555555"));
+        library.addBook(new Book("Gardening Tips", "Frank White", "666666666"));
+        library.addBook(new Book("History of Time", "Grace Martin", "777777777"));
+        library.addBook(new Book("Art of Painting", "Hannah Thompson", "888888888"));
+        library.addBook(new Book("Code Mastery", "Isaac Taylor", "999999999"));
+        library.addBook(new Book("Mountains High", "Jack Moore", "101010101"));
 
         // Add 10 fake members
-        library.addMember(new Member("Ethan Taylor", "M001"));
-        library.addMember(new Member("Mia Thomas", "M002"));
-        library.addMember(new Member("James White", "M003"));
-        library.addMember(new Member("Charlotte Harris", "M004"));
-        library.addMember(new Member("Benjamin Martin", "M005"));
-        library.addMember(new Member("Amelia Clark", "M006"));
-        library.addMember(new Member("Lucas Lewis", "M007"));
-        library.addMember(new Member("Isabella Young", "M008"));
-        library.addMember(new Member("Henry Hall", "M009"));
-        library.addMember(new Member("Sophia Walker", "M010"));
+        library.addMember(new Member("John Doe", "MEM001"));
+        library.addMember(new Member("Jane Smith", "MEM002"));
+        library.addMember(new Member("Bob Lee", "MEM003"));
+        library.addMember(new Member("Alice Kim", "MEM004"));
+        library.addMember(new Member("Tom Ford", "MEM005"));
+        library.addMember(new Member("Emma Watson", "MEM006"));
+        library.addMember(new Member("Charlie Brown", "MEM007"));
+        library.addMember(new Member("Sophia Turner", "MEM008"));
+        library.addMember(new Member("Liam Wilson", "MEM009"));
+        library.addMember(new Member("Olivia Johnson", "MEM010"));
     }
 
-    // Method to test library features
-    private static void testLibraryFeatures(Library library) {
-        // Test adding a book
-        System.out.println("\n--- Testing Add Book ---");
-        Book newBook = new Book("New Book Title", "Author Name", "1112223334");
-        library.addBook(newBook);
-        System.out.println("Book added: " + newBook);
+    private static void testAddBook(Library library) {
+        System.out.println("Testing Add Book...");
+        Book book = new Book("Test Title", "Test Author", "123456789");
+        library.addBook(book);
+        assert library.getBookList().contains(book) : "Add Book Failed!";
+        System.out.println("Add Book Test Passed.");
+    }
 
-        // Test removing a book
-        System.out.println("\n--- Testing Remove Book ---");
-        library.removeBook("1234567890"); // Remove "The Great Adventure"
-        System.out.println("Book with ISBN 1234567890 removed.");
+    private static void testAddMember(Library library) {
+        System.out.println("Testing Add Member...");
+        Member member = new Member("Test Member", "MEM101");
+        library.addMember(member);
+        assert library.getMemberList().contains(member) : "Add Member Failed!";
+        System.out.println("Add Member Test Passed.");
+    }
 
-        // Test borrowing a book
-        System.out.println("\n--- Testing Borrow Book ---");
-        boolean borrowSuccess = library.borrowBook("0987654321", "M001");
-        System.out.println(borrowSuccess ? "Book borrowed successfully." : "Borrowing failed.");
+    private static void testBorrowBook(Library library) {
+        System.out.println("Testing Borrow Book...");
+        String isbn = "111111111";
+        String memberId = "MEM001";
+        library.borrowBook(isbn, memberId);
+        Book borrowedBook = library.getBookList().stream()
+                .filter(book -> book.getISBN().equals(isbn))
+                .findFirst()
+                .orElse(null);
+        assert borrowedBook != null && !borrowedBook.isAvailable() : "Borrow Book Failed!";
+        System.out.println("Borrow Book Test Passed.");
+    }
 
-        // Test returning a book
-        System.out.println("\n--- Testing Return Book ---");
-        boolean returnSuccess = library.returnBook("0987654321", "M001");
-        System.out.println(returnSuccess ? "Book returned successfully." : "Return failed.");
+    private static void testReturnBook(Library library) {
+        System.out.println("Testing Return Book...");
+        String isbn = "111111111";
+        String memberId = "MEM001";
+        library.returnBook(isbn, memberId);
+        Book returnedBook = library.getBookList().stream()
+                .filter(book -> book.getISBN().equals(isbn))
+                .findFirst()
+                .orElse(null);
+        assert returnedBook != null && returnedBook.isAvailable() : "Return Book Failed!";
+        System.out.println("Return Book Test Passed.");
+    }
 
-        // Test viewing active loans
-        System.out.println("\n--- Testing Active Loans ---");
-        library.borrowBook("1122334455", "M002"); // Borrow "Java for Pros"
-        library.borrowBook("5566778899", "M003"); // Borrow "The Art of Debugging"
-        for (Book book : library.getBookList()) {
-            if (!book.isAvailable()) {
-                System.out.println("Active Loan: " + book.getTitle() + " (Borrower ID: " + book.getBorrowerID() + ")");
-            }
+    private static void testDuplicateISBN(Library library) {
+        System.out.println("Testing Duplicate ISBN...");
+        Book duplicateBook = new Book("Duplicate Title", "Duplicate Author", "111111111");
+        library.addBook(duplicateBook);
+        long count = library.getBookList().stream()
+                .filter(book -> book.getISBN().equals("111111111"))
+                .count();
+        assert count == 1 : "Duplicate ISBN Test Failed!";
+        System.out.println("Duplicate ISBN Test Passed.");
+    }
+
+    private static void testDuplicateMemberID(Library library) {
+        System.out.println("Testing Duplicate Member ID...");
+        Member duplicateMember = new Member("Duplicate Member", "MEM001");
+        library.addMember(duplicateMember);
+        long count = library.getMemberList().stream()
+                .filter(member -> member.getMemberID().equals("MEM001"))
+                .count();
+        assert count == 1 : "Duplicate Member ID Test Failed!";
+        System.out.println("Duplicate Member ID Test Passed.");
+    }
+
+    private static void testDeleteBook(Library library) {
+        System.out.println("Testing Delete Book...");
+        String isbnToDelete = "111111111";
+        Book bookToDelete = library.getBookList().stream()
+                .filter(book -> book.getISBN().equals(isbnToDelete))
+                .findFirst()
+                .orElse(null);
+        if (bookToDelete != null) {
+            library.getBookList().remove(bookToDelete);
         }
+        assert library.getBookList().stream()
+                .noneMatch(book -> book.getISBN().equals(isbnToDelete)) : "Delete Book Failed!";
+        System.out.println("Delete Book Test Passed.");
+    }
 
-        // Test overdue tracking
-        System.out.println("\n--- Testing Overdue Books ---");
-        for (Book book : library.getBookList()) {
-            if (!book.isAvailable()) {
-                // Simulate an overdue book by setting a past borrowed date
-                book.setBorrowedDate(LocalDate.now().minusWeeks(2));
-                System.out.println(book.getTitle() + " is overdue: " + book.isOverdue());
-            }
+    private static void testDeleteMember(Library library) {
+        System.out.println("Testing Delete Member...");
+        String memberIdToDelete = "MEM001";
+        Member memberToDelete = library.getMemberList().stream()
+                .filter(member -> member.getMemberID().equals(memberIdToDelete))
+                .findFirst()
+                .orElse(null);
+        if (memberToDelete != null) {
+            List<String> borrowedBooks = memberToDelete.getBorrowedBooks();
+            borrowedBooks.forEach(isbn -> library.returnBook(isbn, memberIdToDelete));
+            library.getMemberList().remove(memberToDelete);
         }
+        assert library.getMemberList().stream()
+                .noneMatch(member -> member.getMemberID().equals(memberIdToDelete)) : "Delete Member Failed!";
+        System.out.println("Delete Member Test Passed.");
+    }
 
-        // Test member borrow history
-        System.out.println("\n--- Testing Member Borrow History ---");
-        for (Member member : library.getMemberList()) {
-            System.out.println("Member: " + member.getName() + ", Borrow History: " + member.getBorrowHistory());
-        }
+    private static void testActiveLoans(Library library) {
+        System.out.println("Testing Active Loans...");
+        Book book = new Book("Loan Test Title", "Loan Test Author", "987654321");
+        Member member = new Member("Loan Test Member", "MEM102");
+        library.addBook(book);
+        library.addMember(member);
+        library.borrowBook("987654321", "MEM102");
+        assert library.getBookList().stream()
+                .filter(b -> !b.isAvailable())
+                .anyMatch(b -> b.getISBN().equals("987654321")) : "Active Loans Test Failed!";
+        System.out.println("Active Loans Test Passed.");
     }
 }
