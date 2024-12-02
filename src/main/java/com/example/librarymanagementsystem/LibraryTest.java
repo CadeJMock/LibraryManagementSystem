@@ -3,8 +3,6 @@
  * CWID: 50350556
  * Date (Last Updated) : 12/1/2024
  * Email: cmock2@leomail.tamuc.edu
- *
- * This class runs tests for all the features available in the other classes.
  */
 
 package com.example.librarymanagementsystem;
@@ -14,7 +12,17 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-// Test class to validate the functionality of the LMS application. Also generates fake data to "library_data.dat" for testing purposes.
+/**
+ * Test class to validate the functionality of the Library Management System (LMS) application.
+ * Provides unit tests for core features of the LMS to ensure correct behavior.
+ *
+ * Responsibilities of the LibraryTest class include:
+ * - Testing operations like adding books/members, borrowing/returning books, and searching.
+ * - Generating fake data for testing purposes and populating the "library_data.dat" file.
+ * - Displaying test results, including the number of passed and failed tests.
+ *
+ * This class is essential for verifying the reliability and robustness of the LMS application.
+ */
 public class LibraryTest {
 
     private static int totalTests = 0;

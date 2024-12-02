@@ -3,8 +3,6 @@
  * CWID: 50350556
  * Date (Last Updated) : 12/1/2024
  * Email: cmock2@leomail.tamuc.edu
- *
- * This class holds all the information attached to a Book for our Library class to use.
  */
 
 package com.example.librarymanagementsystem;
@@ -12,7 +10,21 @@ package com.example.librarymanagementsystem;
 import java.io.Serializable;
 import java.time.LocalDate;
 
-// Represents a book in the library and implements Serializable for data persistence across our program
+/**
+ * Represents a book in the library system.
+ * Implements Serializable to enable data persistence by saving and loading book information.
+ *
+ * Each book has the following attributes:
+ * - Title: The title of the book.
+ * - Author: The author of the book.
+ * - ISBN: A unique identifier for the book.
+ * - Availability: Tracks whether the book is available for borrowing.
+ * - Borrower ID: The ID of the member who borrowed the book (if applicable).
+ * - Borrowed Date: The date the book was borrowed (if applicable).
+ * - Due Date: The date the book is due to be returned (if applicable).
+ *
+ * This class is used to manage and track the state of books in the library system.
+ */
 public class Book implements Serializable {
     private String title;
     private String author;
@@ -23,13 +35,20 @@ public class Book implements Serializable {
     private LocalDate dueDate; // The due date for returning the book
 
 
-    // Constructor to initialize a book with a title, author, and ISBN
+    /**
+     * Constructor to initialize a book with a title, author, and ISBN.
+     * Sets the initial state of the book as available and resets borrower-related fields.
+     *
+     * @param title  The title of the book.
+     * @param author The author of the book.
+     * @param ISBN   The ISBN of the book.
+     */
     public Book(String title, String author, String ISBN) {
         this.title = title;
         this.author = author;
         this.ISBN = ISBN;
-        this.isAvailable = true;
-        this.borrowerID = null;
+        this.isAvailable = true; // available by default
+        this.borrowerID = null; // no borrower initially
         this.borrowedDate = null;
         this.dueDate = null;
     }
@@ -67,13 +86,21 @@ public class Book implements Serializable {
         return borrowedDate;
     }
 
-    // Sets the borrowed date and calculates the due date based on it. If the borrowed date is null, both dates are reset.
+    /**
+     * Sets the borrowed date for the book and calculates the due date based on it.
+     * If the borrowed date is set to null, both the borrowed and due dates are reset.
+     *
+     * @param borrowedDate The date when the book is borrowed. If null, the dates are cleared.
+     */
     public void setBorrowedDate(LocalDate borrowedDate) {
         if (borrowedDate == null) {
+            // clear both borrowedDate and dueDate when borrowedDate is null
             this.borrowedDate = null;
             this.dueDate = null;
         } else {
+            // set the borrowed date
             this.borrowedDate = borrowedDate;
+            // set the due date as one week after the borrowed date
             this.dueDate = borrowedDate.plusWeeks(1); // Calculate due date only if borrowedDate is not null
         }
     }

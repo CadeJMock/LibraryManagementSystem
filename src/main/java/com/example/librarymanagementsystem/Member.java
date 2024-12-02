@@ -3,8 +3,6 @@
  * CWID: 50350556
  * Date (Last Updated) : 12/1/2024
  * Email: cmock2@leomail.tamuc.edu
- *
- * This class holds all the information related to a Member for our Library class to use.
  */
 
 package com.example.librarymanagementsystem;
@@ -12,6 +10,17 @@ package com.example.librarymanagementsystem;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+/**
+ * Represents a member of the library system.
+ * Implements Serializable to enable data persistence by saving and loading member information.
+ *
+ * Each member has the following attributes:
+ * - Name: The name of the member.
+ * - Member ID: A unique identifier for the member.
+ * - Borrowed Books: A list of ISBNs representing the books currently borrowed by the member.
+ *
+ * This class is used to manage and track the details and borrowing activity of members in the library system.
+ */
 public class Member implements Serializable {
     private String name;
     private String memberID;
@@ -47,7 +56,7 @@ public class Member implements Serializable {
     // Adds a book to the member's borrowed list
     public void borrowBook(String ISBN) {
         if (canBorrow()) {
-            if (!borrowedBooks.contains(ISBN)) {
+            if (!borrowedBooks.contains(ISBN)) { // Check for duplicates
                 borrowedBooks.add(ISBN);
             }
         }
