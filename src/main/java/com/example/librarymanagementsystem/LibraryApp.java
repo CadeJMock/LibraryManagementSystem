@@ -379,35 +379,148 @@ public class LibraryApp extends Application {
     private void updateBookList(ListView<Book> listView, List<Book> books) {
         listView.getItems().clear();
         listView.getItems().addAll(books);
-        listView.setCellFactory(param -> new ListCell<>() {
-            @Override
-            protected void updateItem(Book book, boolean empty) {
-                super.updateItem(book, empty);
-                if (empty || book == null) {
-                    setText(null);
-                } else {
-                    setText(book.getTitle() + " by " + book.getAuthor() + " (ISBN: " + book.getISBN() + ")");
+
+        listView.setCellFactory(param -> {
+            ListCell<Book> cell = new ListCell<>() {
+                @Override
+                protected void updateItem(Book book, boolean empty) {
+                    super.updateItem(book, empty);
+                    if (empty || book == null) {
+                        setText(null);
+                    } else {
+                        setText(book.getTitle() + " by " + book.getAuthor() + " (ISBN: " + book.getISBN() + ")");
+                    }
                 }
-            }
+            };
+
+            ContextMenu contextMenu = new ContextMenu();
+
+            // Open option
+            MenuItem openItem = new MenuItem("Open");
+            openItem.setOnAction(e -> {
+                Book selectedBook = cell.getItem();
+                if (selectedBook != null) {
+                    showBookDetails(selectedBook);
+                }
+            });
+
+            // Delete option
+            MenuItem deleteItem = new MenuItem("Delete");
+            deleteItem.setOnAction(e -> {
+                Book selectedBook = cell.getItem();
+                if (selectedBook != null) {
+                    Alert confirmationDialog = new Alert(Alert.AlertType.CONFIRMATION);
+                    confirmationDialog.setTitle("Delete Book");
+                    confirmationDialog.setHeaderText("Are you sure?");
+                    confirmationDialog.setContentText("Deleting this book will return it if checked out and remove it from all active loans.");
+
+                    ButtonType yesButton = new ButtonType("Yes");
+                    ButtonType noButton = new ButtonType("No", ButtonBar.ButtonData.CANCEL_CLOSE);
+                    confirmationDialog.getButtonTypes().setAll(yesButton, noButton);
+
+                    confirmationDialog.showAndWait().ifPresent(response -> {
+                        if (response == yesButton) {
+                            // Return the book if it is checked out
+                            if (!selectedBook.isAvailable()) {
+                                library.returnBook(selectedBook.getISBN(), selectedBook.getBorrowerID());
+                            }
+
+                            // Remove the book from the library
+                            library.getBookList().remove(selectedBook);
+                            updateBookList(listView, library.getBookList());
+                        }
+                    });
+                }
+            });
+
+            contextMenu.getItems().addAll(openItem, deleteItem);
+            cell.setContextMenu(contextMenu);
+
+            // Double-click to open book details
+            cell.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && !cell.isEmpty()) {
+                    showBookDetails(cell.getItem());
+                }
+            });
+
+            return cell;
         });
     }
+
 
 
     private void updateMemberList(ListView<Member> listView, List<Member> members) {
         listView.getItems().clear();
         listView.getItems().addAll(members);
-        listView.setCellFactory(param -> new ListCell<>() {
-            @Override
-            protected void updateItem(Member member, boolean empty) {
-                super.updateItem(member, empty);
-                if (empty || member == null) {
-                    setText(null);
-                } else {
-                    setText(member.getName() + " (ID: " + member.getMemberID() + ")");
+
+        listView.setCellFactory(param -> {
+            ListCell<Member> cell = new ListCell<>() {
+                @Override
+                protected void updateItem(Member member, boolean empty) {
+                    super.updateItem(member, empty);
+                    if (empty || member == null) {
+                        setText(null);
+                    } else {
+                        setText(member.getName() + " (ID: " + member.getMemberID() + ")");
+                    }
                 }
-            }
+            };
+
+            ContextMenu contextMenu = new ContextMenu();
+
+            // Open option
+            MenuItem openItem = new MenuItem("Open");
+            openItem.setOnAction(e -> {
+                Member selectedMember = cell.getItem();
+                if (selectedMember != null) {
+                    showMemberDetails(selectedMember);
+                }
+            });
+
+            // Delete option
+            MenuItem deleteItem = new MenuItem("Delete");
+            deleteItem.setOnAction(e -> {
+                Member selectedMember = cell.getItem();
+                if (selectedMember != null) {
+                    Alert confirmationDialog = new Alert(Alert.AlertType.CONFIRMATION);
+                    confirmationDialog.setTitle("Delete Member");
+                    confirmationDialog.setHeaderText("Are you sure?");
+                    confirmationDialog.setContentText("Deleting this member will return all their books and remove their active loans.");
+
+                    ButtonType yesButton = new ButtonType("Yes");
+                    ButtonType noButton = new ButtonType("No", ButtonBar.ButtonData.CANCEL_CLOSE);
+                    confirmationDialog.getButtonTypes().setAll(yesButton, noButton);
+
+                    confirmationDialog.showAndWait().ifPresent(response -> {
+                        if (response == yesButton) {
+                            // Return all books borrowed by the member
+                            List<String> borrowedBooksCopy = new ArrayList<>(selectedMember.getBorrowedBooks());
+                            for (String isbn : borrowedBooksCopy) {
+                                library.returnBook(isbn, selectedMember.getMemberID());
+                            }
+
+                            // Remove the member from the library
+                            library.getMemberList().remove(selectedMember);
+                            updateMemberList(listView, library.getMemberList());
+                        }
+                    });
+                }
+            });
+
+            contextMenu.getItems().addAll(openItem, deleteItem);
+            cell.setContextMenu(contextMenu);
+
+            // Double-click to open member details
+            cell.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && !cell.isEmpty()) {
+                    showMemberDetails(cell.getItem());
+                }
+            });
+
+            return cell;
         });
     }
+
 
 
 
