@@ -788,11 +788,34 @@ public class LibraryApp extends Application {
         searchField.setPromptText("Search by Title, Borrower ID, or Borrowed Date");
 
         ListView<Book> loanListView = new ListView<>();
-        updateBookList(loanListView, library.getBookList().stream()
+        updateBookListForLoans(loanListView, library.getBookList().stream()
                 .filter(book -> !book.isAvailable()) // Only show checked-out books
                 .toList());
 
-        loanListView.setCellFactory(param -> {
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            updateBookListForLoans(loanListView, library.getBookList().stream()
+                    .filter(book -> !book.isAvailable() &&
+                            (book.getTitle().toLowerCase().contains(newValue.toLowerCase()) ||
+                                    (book.getBorrowerID() != null && book.getBorrowerID().toLowerCase().contains(newValue.toLowerCase())) ||
+                                    (book.getBorrowedDate() != null && book.getBorrowedDate().toString().contains(newValue)))
+                    )
+                    .toList());
+        });
+
+        layout.getChildren().addAll(new Label("Search Active Loans"), searchField, loanListView);
+
+        Scene scene = new Scene(layout, 400, 600);
+        viewActiveLoansStage.setScene(scene);
+        viewActiveLoansStage.show();
+    }
+
+
+
+    private void updateBookListForLoans(ListView<Book> listView, List<Book> books) {
+        listView.getItems().clear();
+        listView.getItems().addAll(books);
+
+        listView.setCellFactory(param -> {
             ListCell<Book> cell = new ListCell<>() {
                 @Override
                 protected void updateItem(Book book, boolean empty) {
@@ -834,7 +857,7 @@ public class LibraryApp extends Application {
                         if (response == yesButton) {
                             // Mark book as available and update member
                             library.returnBook(selectedLoan.getISBN(), selectedLoan.getBorrowerID());
-                            updateBookList(loanListView, library.getBookList().stream()
+                            updateBookListForLoans(listView, library.getBookList().stream()
                                     .filter(book -> !book.isAvailable())
                                     .toList());
                         }
@@ -854,22 +877,6 @@ public class LibraryApp extends Application {
 
             return cell;
         });
-
-        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
-            updateBookList(loanListView, library.getBookList().stream()
-                    .filter(book -> !book.isAvailable() &&
-                            (book.getTitle().toLowerCase().contains(newValue.toLowerCase()) ||
-                                    (book.getBorrowerID() != null && book.getBorrowerID().toLowerCase().contains(newValue.toLowerCase())) ||
-                                    (book.getBorrowedDate() != null && book.getBorrowedDate().toString().contains(newValue)))
-                    )
-                    .toList());
-        });
-
-        layout.getChildren().addAll(new Label("Search Active Loans"), searchField, loanListView);
-
-        Scene scene = new Scene(layout, 400, 600);
-        viewActiveLoansStage.setScene(scene);
-        viewActiveLoansStage.show();
     }
 
 
