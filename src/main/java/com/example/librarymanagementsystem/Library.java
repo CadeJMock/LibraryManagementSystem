@@ -5,10 +5,12 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 
-public class Library {
-    private ArrayList<Book> bookList;
-    private ArrayList<Member> memberList;
+// Represents the library, managing books and members, and implements serializable for data persistence across the program *unsure if I need serializable for this
+public class Library implements Serializable {
+    private ArrayList<Book> bookList; // List of all books in the library
+    private ArrayList<Member> memberList; // List of all members in the library
 
+    // Library constructor with a book list and member list
     public Library() {
         this.bookList = new ArrayList<>();
         this.memberList = new ArrayList<>();
@@ -23,7 +25,7 @@ public class Library {
         return memberList;
     }
 
-    // Methods to add/remove books and members
+    // Methods to add/remove books and members from the library
     public void addBook(Book book) {
         bookList.add(book);
     }
@@ -40,7 +42,7 @@ public class Library {
         memberList.removeIf(member -> member.getMemberID().equals(memberID));
     }
 
-    // Borrow and return books
+    // Allows a member to borrow a book, updating both the book and member records
     public boolean borrowBook(String ISBN, String memberID) {
         for (Book book : bookList) {
             if (book.getISBN().equals(ISBN) && book.isAvailable()) {
@@ -58,7 +60,7 @@ public class Library {
         return false; // Borrowing failed
     }
 
-
+    // Allows a member to return a book, updating both the book and member records
     public boolean returnBook(String ISBN, String memberID) {
         for (Book book : bookList) {
             if (book.getISBN().equals(ISBN) && !book.isAvailable()) {
@@ -82,7 +84,7 @@ public class Library {
 
 
 
-    // Search Books
+    // Searches for books based on title, author, or ISBN
     public ArrayList<Book> searchBooks(String query) {
         ArrayList<Book> results = new ArrayList<>();
         for (Book book : bookList) {
@@ -95,25 +97,7 @@ public class Library {
         return results;
     }
 
-    // Library Statistics
-    public int totalBooks() {
-        return bookList.size();
-    }
-
-    public int totalMembers() {
-        return memberList.size();
-    }
-
-    public String mostBorrowedBook() {
-        return bookList.stream()
-                .max(Comparator.comparingInt(book -> (int) memberList.stream()
-                        .filter(member -> member.getBorrowedBooks().contains(book.getISBN()))
-                        .count()))
-                .map(Book::getTitle)
-                .orElse("No books borrowed yet.");
-    }
-
-    // File I/O for persistence
+    // File I/O for persistence. Saves the library's data to a file, only called if the user Saves & Exists (bottom right) instead of closing the window
     public void saveData() throws IOException {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("library_data.dat"))) {
             oos.writeObject(bookList);
@@ -121,6 +105,7 @@ public class Library {
         }
     }
 
+    // Loads the library's data from a file (library_data.dat). This file can be generated for testing purposes by running LibraryTest.java
     @SuppressWarnings("unchecked")
     public void loadData() throws IOException, ClassNotFoundException {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("library_data.dat"))) {
@@ -129,4 +114,3 @@ public class Library {
         }
     }
 }
-

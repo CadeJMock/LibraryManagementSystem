@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+// Main application class for the library management system with a JavaFX interface
 public class LibraryApp extends Application {
     private Library library = new Library();
 
@@ -31,7 +32,7 @@ public class LibraryApp extends Application {
         BorderPane mainLayout = new BorderPane();
         mainLayout.setStyle("-fx-padding: 20;");
 
-        // Section 1: Add buttons
+        // Section 1: Add buttons - Add Book, Add Member
         VBox addButtons = new VBox(10);
         addButtons.setStyle("-fx-padding: 10; -fx-border-color: #b0b0b0; -fx-border-width: 1; -fx-border-radius: 5;");
         Label addSectionLabel = new Label("Add Features");
@@ -42,7 +43,7 @@ public class LibraryApp extends Application {
         addMemberButton.setStyle("-fx-font-size: 12; -fx-background-color: #4CAF50; -fx-text-fill: white;");
         addButtons.getChildren().addAll(addSectionLabel, addBookButton, addMemberButton);
 
-        // Section 2: Borrow/Return buttons
+        // Section 2: Borrow/Return buttons - Borrow Book, Return Book,
         VBox borrowReturnButtons = new VBox(10);
         borrowReturnButtons.setStyle("-fx-padding: 10; -fx-border-color: #b0b0b0; -fx-border-width: 1; -fx-border-radius: 5;");
         Label borrowReturnSectionLabel = new Label("Borrow/Return");
@@ -53,7 +54,7 @@ public class LibraryApp extends Application {
         returnBookButton.setStyle("-fx-font-size: 12; -fx-background-color: #FF9800; -fx-text-fill: white;");
         borrowReturnButtons.getChildren().addAll(borrowReturnSectionLabel, borrowBookButton, returnBookButton);
 
-        // Section 3: View buttons
+        // Section 3: View buttons - View Books, View Members, View Active Loans
         VBox viewButtons = new VBox(10);
         viewButtons.setStyle("-fx-padding: 10; -fx-border-color: #b0b0b0; -fx-border-width: 1; -fx-border-radius: 5;");
         Label viewSectionLabel = new Label("View Features");
@@ -77,7 +78,7 @@ public class LibraryApp extends Application {
         mainLayout.setBottom(saveExitButton);
         BorderPane.setAlignment(saveExitButton, Pos.BOTTOM_RIGHT);
 
-        // Set button actions
+        // Event handlers for the buttons
         addBookButton.setOnAction(e -> addBook());
         addMemberButton.setOnAction(e -> addMember());
         borrowBookButton.setOnAction(e -> borrowBook());
@@ -85,7 +86,7 @@ public class LibraryApp extends Application {
         viewBooksButton.setOnAction(e -> viewBooks());
         viewMembersButton.setOnAction(e -> viewMembers());
         viewActiveLoansButton.setOnAction(e -> viewActiveLoans());
-        saveExitButton.setOnAction(e -> {
+        saveExitButton.setOnAction(e -> { // Attempt to save the data to the file, catch an error if there was an error writing to it
             try {
                 library.saveData();
                 System.exit(0);
@@ -102,7 +103,7 @@ public class LibraryApp extends Application {
 
 
 
-
+    // Display a form for adding a new book to the library
     private void addBook() {
         Stage addBookStage = new Stage();
         addBookStage.setTitle("Add Book");
@@ -154,8 +155,7 @@ public class LibraryApp extends Application {
         addBookStage.show();
     }
 
-
-
+    // Displays a form for adding a new member to the library
     private void addMember() {
         Stage addMemberStage = new Stage();
         addMemberStage.setTitle("Add Member");
@@ -197,8 +197,7 @@ public class LibraryApp extends Application {
         addMemberStage.show();
     }
 
-
-
+    // Displays a form for borrowing a book by entering ISBN and member ID
     private void borrowBook() {
         Stage borrowBookStage = new Stage();
         borrowBookStage.setTitle("Borrow Book");
@@ -312,9 +311,7 @@ public class LibraryApp extends Application {
         borrowBookStage.show();
     }
 
-
-
-
+    // Displays a form for returning a book by entering ISBN and member ID
     private void returnBook() {
         Stage returnBookStage = new Stage();
         returnBookStage.setTitle("Return Book");
@@ -382,7 +379,7 @@ public class LibraryApp extends Application {
         returnBookStage.show();
     }
 
-
+    // Helper function to update the book list when things are added/removed. Attaches the context menu options as well
     private void updateBookList(ListView<Book> listView, List<Book> books) {
         listView.getItems().clear();
         listView.getItems().addAll(books);
@@ -454,8 +451,7 @@ public class LibraryApp extends Application {
         });
     }
 
-
-
+    // Helper function to update the member list when things are added/removed. Attaches the context menu options as well
     private void updateMemberList(ListView<Member> listView, List<Member> members) {
         listView.getItems().clear();
         listView.getItems().addAll(members);
@@ -528,10 +524,7 @@ public class LibraryApp extends Application {
         });
     }
 
-
-
-
-
+    // Displays all the books in the library with options to open details or delete
     private void viewBooks() {
         Stage viewBooksStage = new Stage();
         viewBooksStage.setTitle("View Books");
@@ -627,9 +620,6 @@ public class LibraryApp extends Application {
         viewBooksStage.show();
     }
 
-
-
-
     // Mini-window to show book details
     private void showBookDetails(Book book) {
         Stage bookDetailsStage = new Stage();
@@ -652,8 +642,7 @@ public class LibraryApp extends Application {
         bookDetailsStage.show();
     }
 
-
-
+    // Display all the members in the library with options to open details or delete
     private void viewMembers() {
         Stage viewMembersStage = new Stage();
         viewMembersStage.setTitle("View Members");
@@ -748,10 +737,6 @@ public class LibraryApp extends Application {
         viewMembersStage.show();
     }
 
-
-
-
-
     // Mini-window to show member details
     private void showMemberDetails(Member member) {
         Stage memberDetailsStage = new Stage();
@@ -772,11 +757,7 @@ public class LibraryApp extends Application {
         memberDetailsStage.show();
     }
 
-
-    private void searchBooks() {
-        // Implement functionality to search books by title, author, or ISBN.
-    }
-
+    // Helper function to show alerts when I need to prompt an alert to the user. The title and the message are passed for reusability for different alerts
     private void showAlert(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
@@ -784,6 +765,7 @@ public class LibraryApp extends Application {
         alert.showAndWait();
     }
 
+    // Display all active loans in the library with options to open details or delete. Overdue loans are shown in red
     private void viewActiveLoans() {
         Stage viewActiveLoansStage = new Stage();
         viewActiveLoansStage.setTitle("View Active Loans");
@@ -816,9 +798,7 @@ public class LibraryApp extends Application {
         viewActiveLoansStage.show();
     }
 
-
-
-
+    // A separate and specific helper function to update the book list for loans and display the loans correctly. A bit of a hack but could not fix it differently
     private void updateBookListForLoans(ListView<Book> listView, List<Book> books) {
         listView.getItems().clear();
         listView.getItems().addAll(books);
@@ -896,10 +876,7 @@ public class LibraryApp extends Application {
         });
     }
 
-
-
-
-
+    // Mini-window to show loan details
     private void showLoanDetails(Book book) {
         Stage loanDetailsStage = new Stage();
         loanDetailsStage.setTitle("Loan Details");
@@ -928,8 +905,6 @@ public class LibraryApp extends Application {
         loanDetailsStage.setScene(scene);
         loanDetailsStage.show();
     }
-
-
 
 
     public static void main(String[] args) {

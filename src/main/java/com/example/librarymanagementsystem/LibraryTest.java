@@ -5,36 +5,37 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+// Test class to validate the functionality of the LMS application. Also generates fake data to "library_data.dat" for testing purposes.
 public class LibraryTest {
 
     private static int totalTests = 0;
     private static int passedTests = 0;
-    private static List<String> failedTests = new ArrayList<>();
+    private static List<String> failedTests = new ArrayList<>(); // Tracks the names of the failed tests
 
     public static void main(String[] args) {
         Library library = new Library();
 
-        // Load or populate data
+        // Check if library data file exists, then either load or populate the data.
         File dataFile = new File("library_data.dat");
         if (!dataFile.exists()) {
             System.out.println("No existing data found. Creating and populating library_data.dat...");
-            populateDefaultLibraryData(library);
+            populateDefaultLibraryData(library); // Add default books and members
             try {
-                library.saveData();
+                library.saveData(); // Save the data to file.
                 System.out.println("library_data.dat created and populated successfully.");
             } catch (Exception e) {
                 System.out.println("Failed to save library data: " + e.getMessage());
             }
         } else {
             try {
-                library.loadData();
+                library.loadData(); // Load data from file
                 System.out.println("Library data loaded successfully.");
             } catch (Exception e) {
                 System.out.println("Failed to load library data: " + e.getMessage());
             }
         }
 
-        // Run tests
+        // Run all tests
         System.out.println("\nRunning Tests...");
 
         testAddBook(library);
@@ -49,7 +50,7 @@ public class LibraryTest {
         testDeleteMember(library);
         testSearchBooks(library);
 
-        // Display test results
+        // Display test results summary
         System.out.println("\n--- Test Results ---");
         System.out.println("Total Tests: " + totalTests);
         System.out.println("Passed Tests: " + passedTests);
@@ -63,18 +64,20 @@ public class LibraryTest {
         System.out.println("---------------------");
     }
 
+    // Runs an individual test and records its results
     private static void runTest(String testName, Runnable test) {
         totalTests++;
         try {
-            test.run();
-            passedTests++;
+            test.run(); // Execute the test
+            passedTests++; // Increment passed tests if successful
             System.out.println(testName + " Test Passed.");
         } catch (AssertionError e) {
-            failedTests.add(testName);
+            failedTests.add(testName); // Record failed test
             System.out.println(testName + " Test Failed: " + e.getMessage());
         }
     }
 
+    // Populates the library with 10 books, 10 members, and some overdue loans
     private static void populateDefaultLibraryData(Library library) {
         library.addBook(new Book("Book 1", "Author 1", "111111111"));
         library.addBook(new Book("Book 2", "Author 2", "222222222"));
@@ -112,7 +115,7 @@ public class LibraryTest {
                 .ifPresent(book -> book.setBorrowedDate(LocalDate.now().minusWeeks(3)));
     }
 
-    // Test individual features
+    // Tests adding a book to the library
     private static void testAddBook(Library library) {
         runTest("Add Book", () -> {
             library.addBook(new Book("Test Book", "Test Author", "123456789"));
@@ -120,6 +123,7 @@ public class LibraryTest {
         });
     }
 
+    // Tests adding a member to the library
     private static void testAddMember(Library library) {
         runTest("Add Member", () -> {
             library.addMember(new Member("Test Member", "MEM101"));
@@ -127,6 +131,7 @@ public class LibraryTest {
         });
     }
 
+    // Tests borrowing a book
     private static void testBorrowBook(Library library) {
         runTest("Borrow Book", () -> {
             boolean success = library.borrowBook("333333333", "MEM003");
@@ -135,6 +140,7 @@ public class LibraryTest {
         });
     }
 
+    // Tests returning a book
     private static void testReturnBook(Library library) {
         runTest("Return Book", () -> {
             boolean success = library.returnBook("333333333", "MEM003");
@@ -143,6 +149,7 @@ public class LibraryTest {
         });
     }
 
+    // Tests adding a duplicate ISBN to the library
     private static void testDuplicateISBN(Library library) {
         runTest("Duplicate ISBN", () -> {
             library.addBook(new Book("Duplicate Book", "Duplicate Author", "111111111"));
@@ -151,6 +158,7 @@ public class LibraryTest {
         });
     }
 
+    // Tests adding a duplicate member ID to the library
     private static void testDuplicateMemberID(Library library) {
         runTest("Duplicate Member ID", () -> {
             library.addMember(new Member("Duplicate Member", "MEM001"));
@@ -159,6 +167,7 @@ public class LibraryTest {
         });
     }
 
+    // Tests enforcing the borrowing limit (3)
     private static void testBorrowLimit(Library library) {
         runTest("Borrow Limit", () -> {
             Member member = new Member("Limit Tester", "MEMLIMIT");
@@ -175,6 +184,7 @@ public class LibraryTest {
         });
     }
 
+    // Tests identifying overdue loans
     private static void testOverdueLoans(Library library) {
         runTest("Overdue Loans", () -> {
             Book book = library.getBookList().stream().filter(b -> b.getISBN().equals("111111111")).findFirst().orElse(null);
@@ -183,6 +193,7 @@ public class LibraryTest {
         });
     }
 
+    // Tests deleting a book from the library
     private static void testDeleteBook(Library library) {
         runTest("Delete Book", () -> {
             library.removeBook("123456789");
@@ -190,6 +201,7 @@ public class LibraryTest {
         });
     }
 
+    // Tests deleting a member from the library
     private static void testDeleteMember(Library library) {
         runTest("Delete Member", () -> {
             library.removeMember("MEM101");
@@ -197,6 +209,7 @@ public class LibraryTest {
         });
     }
 
+    // Tests searching for a book in the library
     private static void testSearchBooks(Library library) {
         runTest("Search Books", () -> {
             List<Book> results = library.searchBooks("Book 1");

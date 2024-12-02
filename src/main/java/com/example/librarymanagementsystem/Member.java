@@ -7,18 +7,17 @@ public class Member implements Serializable {
     private String name;
     private String memberID;
     private ArrayList<String> borrowedBooks;
-    private ArrayList<String> borrowHistory;
 
     private static final int BORROW_LIMIT = 3; // Limit on books a member can borrow
 
+    // Constructor to initialize a member with a name and ID
     public Member(String name, String memberID) {
         this.name = name;
         this.memberID = memberID;
         this.borrowedBooks = new ArrayList<>();
-        this.borrowHistory = new ArrayList<>();
     }
 
-    // Getters and Setters
+    // Getters and Setters for a Member object
     public String getName() {
         return name;
     }
@@ -31,30 +30,27 @@ public class Member implements Serializable {
         return borrowedBooks;
     }
 
-    public ArrayList<String> getBorrowHistory() {
-        return borrowHistory;
-    }
-
+    // Checks if the member can borrow more books based on the borrow limit, see BORROW_LIMIT
     public boolean canBorrow() {
         return borrowedBooks.size() < BORROW_LIMIT;
     }
 
+    // Adds a book to the member's borrowed list
     public void borrowBook(String ISBN) {
         if (canBorrow()) {
             if (!borrowedBooks.contains(ISBN)) {
                 borrowedBooks.add(ISBN);
-                borrowHistory.add("Borrowed: " + ISBN);
             }
         }
     }
 
+    // Removes a book from the member's borrowed list when it is returned
     public void returnBook(String ISBN) {
         borrowedBooks.remove(ISBN); // Remove ISBN from borrowedBooks
-        borrowHistory.add("Returned: " + ISBN); // Log the return in borrowHistory
     }
 
 
-
+    // Formats member details as a string for display purposes on the app
     @Override
     public String toString() {
         return "Member{" +
@@ -64,4 +60,3 @@ public class Member implements Serializable {
                 '}';
     }
 }
-

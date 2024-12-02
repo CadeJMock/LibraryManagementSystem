@@ -1,20 +1,20 @@
 package com.example.librarymanagementsystem;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.io.Serializable;
 import java.time.LocalDate;
 
+// Represents a book in the library and implements Serializable for data persistence across our program
 public class Book implements Serializable {
     private String title;
     private String author;
     private String ISBN;
-    private boolean isAvailable;
-    private String borrowerID;
-    private LocalDate borrowedDate;
-    private LocalDate dueDate;
+    private boolean isAvailable; // true if book is available, false if borrowed
+    private String borrowerID; // ID of the member who borrowed the book
+    private LocalDate borrowedDate; // The date the book was borrowed
+    private LocalDate dueDate; // The due date for returning the book
 
 
+    // Constructor to initialize a book with a title, author, and ISBN
     public Book(String title, String author, String ISBN) {
         this.title = title;
         this.author = author;
@@ -25,7 +25,7 @@ public class Book implements Serializable {
         this.dueDate = null;
     }
 
-    // Getters and Setters
+    // Getters and Setters for a Book object
     public String getTitle() {
         return title;
     }
@@ -58,6 +58,7 @@ public class Book implements Serializable {
         return borrowedDate;
     }
 
+    // Sets the borrowed date and calculates the due date based on it. If the borrowed date is null, both dates are reset.
     public void setBorrowedDate(LocalDate borrowedDate) {
         if (borrowedDate == null) {
             this.borrowedDate = null;
@@ -77,6 +78,7 @@ public class Book implements Serializable {
         return dueDate;
     }
 
+    // Checks if the book is overdue by comparing the due date with the current date
     public boolean isOverdue() {
         if (dueDate == null) {
             return false;
@@ -84,6 +86,7 @@ public class Book implements Serializable {
         return LocalDate.now().isAfter(dueDate);
     }
 
+    // Formats the book details as a string for display purposes in the app
     @Override
     public String toString() {
         return "Book{" +
