@@ -9,6 +9,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class LibraryApp extends Application {
@@ -410,24 +411,87 @@ public class LibraryApp extends Application {
 
 
 
+
     private void viewBooks() {
         Stage viewBooksStage = new Stage();
         viewBooksStage.setTitle("View Books");
 
-        // Main layout
         VBox layout = new VBox(10);
         layout.setStyle("-fx-padding: 15;");
 
-        // Search bar
-        Label searchLabel = new Label("Search Books");
         TextField searchField = new TextField();
         searchField.setPromptText("Search by Title, Author, or ISBN");
 
-        // Book list
         ListView<Book> bookListView = new ListView<>();
         updateBookList(bookListView, library.getBookList());
 
-        // Dynamically filter book list based on search query
+        // Reapply CellFactory to ensure event handlers are retained
+        bookListView.setCellFactory(param -> {
+            ListCell<Book> cell = new ListCell<>() {
+                @Override
+                protected void updateItem(Book book, boolean empty) {
+                    super.updateItem(book, empty);
+                    if (empty || book == null) {
+                        setText(null);
+                    } else {
+                        setText(book.getTitle() + " by " + book.getAuthor() + " (ISBN: " + book.getISBN() + ")");
+                    }
+                }
+            };
+
+            ContextMenu contextMenu = new ContextMenu();
+
+            // Open option
+            MenuItem openItem = new MenuItem("Open");
+            openItem.setOnAction(e -> {
+                Book selectedBook = cell.getItem();
+                if (selectedBook != null) {
+                    showBookDetails(selectedBook);
+                }
+            });
+
+            // Delete option
+            MenuItem deleteItem = new MenuItem("Delete");
+            deleteItem.setOnAction(e -> {
+                Book selectedBook = cell.getItem();
+                if (selectedBook != null) {
+                    Alert confirmationDialog = new Alert(Alert.AlertType.CONFIRMATION);
+                    confirmationDialog.setTitle("Delete Book");
+                    confirmationDialog.setHeaderText("Are you sure?");
+                    confirmationDialog.setContentText("Deleting this book will return it if checked out and remove it from all active loans.");
+
+                    ButtonType yesButton = new ButtonType("Yes");
+                    ButtonType noButton = new ButtonType("No", ButtonBar.ButtonData.CANCEL_CLOSE);
+                    confirmationDialog.getButtonTypes().setAll(yesButton, noButton);
+
+                    confirmationDialog.showAndWait().ifPresent(response -> {
+                        if (response == yesButton) {
+                            // Return the book if it is checked out
+                            if (!selectedBook.isAvailable()) {
+                                library.returnBook(selectedBook.getISBN(), selectedBook.getBorrowerID());
+                            }
+
+                            // Remove the book from the library
+                            library.getBookList().remove(selectedBook);
+                            updateBookList(bookListView, library.getBookList());
+                        }
+                    });
+                }
+            });
+
+            contextMenu.getItems().addAll(openItem, deleteItem);
+            cell.setContextMenu(contextMenu);
+
+            // Double-click to open book details
+            cell.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && !cell.isEmpty()) {
+                    showBookDetails(cell.getItem());
+                }
+            });
+
+            return cell;
+        });
+
         searchField.textProperty().addListener((observable, oldValue, newValue) -> {
             updateBookList(bookListView, library.getBookList().stream()
                     .filter(book -> book.getTitle().toLowerCase().contains(newValue.toLowerCase()) ||
@@ -436,23 +500,14 @@ public class LibraryApp extends Application {
                     .toList());
         });
 
-        // Double-click event to show book details
-        bookListView.setOnMouseClicked(event -> {
-            if (event.getClickCount() == 2) {
-                Book selectedBook = bookListView.getSelectionModel().getSelectedItem();
-                if (selectedBook != null) {
-                    showBookDetails(selectedBook);
-                }
-            }
-        });
-
-        // Add components to layout
-        layout.getChildren().addAll(searchLabel, searchField, bookListView);
+        layout.getChildren().addAll(new Label("Search Books"), searchField, bookListView);
 
         Scene scene = new Scene(layout, 400, 600);
         viewBooksStage.setScene(scene);
         viewBooksStage.show();
     }
+
+
 
 
     // Mini-window to show book details
@@ -484,37 +539,98 @@ public class LibraryApp extends Application {
         viewMembersStage.setTitle("View Members");
 
         VBox layout = new VBox(10);
-        layout.setStyle("-fx-padding: 10;");
+        layout.setStyle("-fx-padding: 15;");
 
-        ListView<Member> listView = new ListView<>();
-        listView.getItems().addAll(library.getMemberList()); // Add all members to the ListView
-        listView.setCellFactory(param -> new ListCell<>() {
-            @Override
-            protected void updateItem(Member member, boolean empty) {
-                super.updateItem(member, empty);
-                if (empty || member == null) {
-                    setText(null);
-                } else {
-                    setText(member.getName() + " (Member ID: " + member.getMemberID() + ")");
+        TextField searchField = new TextField();
+        searchField.setPromptText("Search by Name or Member ID");
+
+        ListView<Member> memberListView = new ListView<>();
+        updateMemberList(memberListView, library.getMemberList());
+
+        memberListView.setCellFactory(param -> {
+            ListCell<Member> cell = new ListCell<>() {
+                @Override
+                protected void updateItem(Member member, boolean empty) {
+                    super.updateItem(member, empty);
+                    if (empty || member == null) {
+                        setText(null);
+                    } else {
+                        setText(member.getName() + " (ID: " + member.getMemberID() + ")");
+                    }
                 }
-            }
-        });
+            };
 
-        // Double-click event for viewing detailed member info
-        listView.setOnMouseClicked(event -> {
-            if (event.getClickCount() == 2) {
-                Member selectedMember = listView.getSelectionModel().getSelectedItem();
+            ContextMenu contextMenu = new ContextMenu();
+
+            // Open option
+            MenuItem openItem = new MenuItem("Open");
+            openItem.setOnAction(e -> {
+                Member selectedMember = cell.getItem();
                 if (selectedMember != null) {
                     showMemberDetails(selectedMember);
                 }
-            }
+            });
+
+            // Delete option
+            MenuItem deleteItem = new MenuItem("Delete");
+            deleteItem.setOnAction(e -> {
+                Member selectedMember = cell.getItem();
+                if (selectedMember != null) {
+                    Alert confirmationDialog = new Alert(Alert.AlertType.CONFIRMATION);
+                    confirmationDialog.setTitle("Delete Member");
+                    confirmationDialog.setHeaderText("Are you sure?");
+                    confirmationDialog.setContentText("Deleting this member will return all their books and remove their active loans.");
+
+                    ButtonType yesButton = new ButtonType("Yes");
+                    ButtonType noButton = new ButtonType("No", ButtonBar.ButtonData.CANCEL_CLOSE);
+                    confirmationDialog.getButtonTypes().setAll(yesButton, noButton);
+
+                    confirmationDialog.showAndWait().ifPresent(response -> {
+                        if (response == yesButton) {
+                            // Safely iterate over borrowed books
+                            List<String> borrowedBooksCopy = new ArrayList<>(selectedMember.getBorrowedBooks());
+                            for (String isbn : borrowedBooksCopy) {
+                                library.returnBook(isbn, selectedMember.getMemberID());
+                            }
+
+                            // Remove the member from the library
+                            library.getMemberList().remove(selectedMember);
+                            updateMemberList(memberListView, library.getMemberList());
+                        }
+                    });
+                }
+            });
+
+            contextMenu.getItems().addAll(openItem, deleteItem);
+            cell.setContextMenu(contextMenu);
+
+            // Double-click to open member details
+            cell.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && !cell.isEmpty()) {
+                    showMemberDetails(cell.getItem());
+                }
+            });
+
+            return cell;
         });
 
-        layout.getChildren().addAll(new Label("Library Members:"), listView);
-        Scene scene = new Scene(layout, 400, 400);
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            updateMemberList(memberListView, library.getMemberList().stream()
+                    .filter(member -> member.getName().toLowerCase().contains(newValue.toLowerCase()) ||
+                            member.getMemberID().toLowerCase().contains(newValue.toLowerCase()))
+                    .toList());
+        });
+
+        layout.getChildren().addAll(new Label("Search Members"), searchField, memberListView);
+
+        Scene scene = new Scene(layout, 400, 600);
         viewMembersStage.setScene(scene);
         viewMembersStage.show();
     }
+
+
+
+
 
     // Mini-window to show member details
     private void showMemberDetails(Member member) {
@@ -549,47 +665,102 @@ public class LibraryApp extends Application {
     }
 
     private void viewActiveLoans() {
-        Stage activeLoansStage = new Stage();
-        activeLoansStage.setTitle("Active Loans");
+        Stage viewActiveLoansStage = new Stage();
+        viewActiveLoansStage.setTitle("View Active Loans");
 
         VBox layout = new VBox(10);
-        layout.setStyle("-fx-padding: 10;");
+        layout.setStyle("-fx-padding: 15;");
 
-        ListView<Book> listView = new ListView<>();
-        for (Book book : library.getBookList()) {
-            if (!book.isAvailable()) {
-                listView.getItems().add(book); // Add only borrowed books
-            }
-        }
+        TextField searchField = new TextField();
+        searchField.setPromptText("Search by Title, Borrower ID, or Borrowed Date");
 
-        // Display books in a readable format
-        listView.setCellFactory(param -> new ListCell<>() {
-            @Override
-            protected void updateItem(Book book, boolean empty) {
-                super.updateItem(book, empty);
-                if (empty || book == null) {
-                    setText(null);
-                } else {
-                    setText(book.getTitle() + " (ISBN: " + book.getISBN() + ")");
+        ListView<Book> loanListView = new ListView<>();
+        updateBookList(loanListView, library.getBookList().stream()
+                .filter(book -> !book.isAvailable()) // Only show checked-out books
+                .toList());
+
+        loanListView.setCellFactory(param -> {
+            ListCell<Book> cell = new ListCell<>() {
+                @Override
+                protected void updateItem(Book book, boolean empty) {
+                    super.updateItem(book, empty);
+                    if (empty || book == null) {
+                        setText(null);
+                    } else {
+                        setText(book.getTitle() + " (Borrower ID: " + book.getBorrowerID() + ")");
+                    }
                 }
-            }
-        });
+            };
 
-        // Double-click event to show loan details
-        listView.setOnMouseClicked(event -> {
-            if (event.getClickCount() == 2) {
-                Book selectedBook = listView.getSelectionModel().getSelectedItem();
+            ContextMenu contextMenu = new ContextMenu();
+
+            // Open option
+            MenuItem openItem = new MenuItem("Open");
+            openItem.setOnAction(e -> {
+                Book selectedBook = cell.getItem();
                 if (selectedBook != null) {
                     showLoanDetails(selectedBook);
                 }
-            }
+            });
+
+            // Delete option
+            MenuItem deleteItem = new MenuItem("Delete");
+            deleteItem.setOnAction(e -> {
+                Book selectedLoan = cell.getItem();
+                if (selectedLoan != null) {
+                    Alert confirmationDialog = new Alert(Alert.AlertType.CONFIRMATION);
+                    confirmationDialog.setTitle("Delete Loan");
+                    confirmationDialog.setHeaderText("Are you sure?");
+                    confirmationDialog.setContentText("Deleting this loan will make the book available and update the borrower's record.");
+
+                    ButtonType yesButton = new ButtonType("Yes");
+                    ButtonType noButton = new ButtonType("No", ButtonBar.ButtonData.CANCEL_CLOSE);
+                    confirmationDialog.getButtonTypes().setAll(yesButton, noButton);
+
+                    confirmationDialog.showAndWait().ifPresent(response -> {
+                        if (response == yesButton) {
+                            // Mark book as available and update member
+                            library.returnBook(selectedLoan.getISBN(), selectedLoan.getBorrowerID());
+                            updateBookList(loanListView, library.getBookList().stream()
+                                    .filter(book -> !book.isAvailable())
+                                    .toList());
+                        }
+                    });
+                }
+            });
+
+            contextMenu.getItems().addAll(openItem, deleteItem);
+            cell.setContextMenu(contextMenu);
+
+            // Double-click to open loan details
+            cell.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && !cell.isEmpty()) {
+                    showLoanDetails(cell.getItem());
+                }
+            });
+
+            return cell;
         });
 
-        layout.getChildren().addAll(new Label("Active Loans:"), listView);
-        Scene scene = new Scene(layout, 400, 400);
-        activeLoansStage.setScene(scene);
-        activeLoansStage.show();
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            updateBookList(loanListView, library.getBookList().stream()
+                    .filter(book -> !book.isAvailable() &&
+                            (book.getTitle().toLowerCase().contains(newValue.toLowerCase()) ||
+                                    (book.getBorrowerID() != null && book.getBorrowerID().toLowerCase().contains(newValue.toLowerCase())) ||
+                                    (book.getBorrowedDate() != null && book.getBorrowedDate().toString().contains(newValue)))
+                    )
+                    .toList());
+        });
+
+        layout.getChildren().addAll(new Label("Search Active Loans"), searchField, loanListView);
+
+        Scene scene = new Scene(layout, 400, 600);
+        viewActiveLoansStage.setScene(scene);
+        viewActiveLoansStage.show();
     }
+
+
+
 
     private void showLoanDetails(Book book) {
         Stage loanDetailsStage = new Stage();
