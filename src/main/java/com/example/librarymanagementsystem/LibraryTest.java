@@ -44,6 +44,7 @@ public class LibraryTest {
             }
         }
 
+        System.out.println("Cade Mock - CWID: 50350556");
         // Run all tests
         System.out.println("\nRunning Tests...");
 
