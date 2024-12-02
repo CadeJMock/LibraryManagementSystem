@@ -133,6 +133,8 @@ public class LibraryApp extends Application {
 
             if (title.isEmpty() || author.isEmpty() || isbn.isEmpty()) {
                 showAlert("Error", "All fields must be filled!");
+            } else if (library.getBookList().stream().anyMatch(book -> book.getISBN().equals(isbn))) {
+                showAlert("Error", "A book with this ISBN already exists!");
             } else {
                 library.addBook(new Book(title, author, isbn));
                 showAlert("Success", "Book added successfully!");
@@ -150,6 +152,7 @@ public class LibraryApp extends Application {
         addBookStage.setScene(scene);
         addBookStage.show();
     }
+
 
 
     private void addMember() {
@@ -173,6 +176,8 @@ public class LibraryApp extends Application {
 
             if (name.isEmpty() || memberId.isEmpty()) {
                 showAlert("Error", "All fields must be filled!");
+            } else if (library.getMemberList().stream().anyMatch(member -> member.getMemberID().equals(memberId))) {
+                showAlert("Error", "A member with this ID already exists!");
             } else {
                 library.addMember(new Member(name, memberId));
                 showAlert("Success", "Member added successfully!");
@@ -190,6 +195,7 @@ public class LibraryApp extends Application {
         addMemberStage.setScene(scene);
         addMemberStage.show();
     }
+
 
 
     private void borrowBook() {
