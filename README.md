@@ -1,11 +1,11 @@
-# Library Management System
+# Library Management System  
 
 This is the final project for my **CSCI-428 Course** at **East Texas A&M**.  
 Author: **Cade Mock**  
 CWID: **50350556**  
 Email: **cmock2@leomail.tamuc.edu**
 
-The location of my actual .java files is:
+(For Professor) The location of my actual .java files is:
 *LibraryManagementSystem/src/main/java/com.example.librarymanagementsystem/*
 ---
 
